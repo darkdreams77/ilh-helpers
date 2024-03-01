@@ -7,12 +7,12 @@ export function Footer() {
   const thisYear = new Date().getFullYear()
 
   const variants =
-    "supports-backdrop-blur:bg-white/95 w-full flex-none bg-white backdrop-blur duration-500 dark:border-slate-50/[0.06] dark:bg-slate-900/50 lg:z-50 lg:border-t lg:border-slate-900/10"
+    "supports-backdrop-blur:bg-white/95 w-full flex-none bg-white backdrop-blur duration-500 dark:border-slate-50/[0.06] dark:bg-slate-900/50 border-t border-slate-900/10"
 
   return (
-    <header className={variants}>
+    <footer className={variants}>
       <div className="max-w-8xl mx-auto">
-        <div className="flex items-center justify-between py-4">
+        <div className="flex flex-col md:flex-row items-center justify-between p-4 md:py-4">
           © ILH · Aide aux codes — {thisYear}
           <Link
             href="https://www.i-love-harvard.com"
@@ -24,6 +24,6 @@ export function Footer() {
           </Link>
         </div>
       </div>
-    </header>
+    </footer>
   )
 }
