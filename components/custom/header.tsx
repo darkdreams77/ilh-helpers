@@ -12,7 +12,7 @@ export function Header() {
   return (
     <header className={variants}>
       <div className="max-w-8xl mx-auto">
-        <div className="flex items-center justify-between py-4">
+        <div className="flex items-center justify-between p-4 md:py-4">
           <div className="flex items-center justify-start gap-4">
             <Link href="/">
               <Image
