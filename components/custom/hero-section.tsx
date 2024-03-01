@@ -22,7 +22,7 @@ export default function HeroSection() {
               Love Harvard.
             </p>
           </div>
-          <div className="flex w-full max-w-sm flex-col space-y-2">
+          <div className="w-full max-w-sm space-y-2">
             <Button type="button" asChild className="text-md font-bold">
               <Link href="/connexion?type=sign-in">Inscris-toi</Link>
             </Button>{" "}
