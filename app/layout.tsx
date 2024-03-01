@@ -37,7 +37,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <Header />
-          <div className="max-w-8xl mx-auto mt-8 w-full flex-grow">
+          <div className="max-w-8xl mx-auto mt-4 md:mt-8 px-4 md:px-0 w-full flex-grow">
             {children}
           </div>
           <Footer />
