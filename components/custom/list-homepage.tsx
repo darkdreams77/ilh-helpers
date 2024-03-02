@@ -24,7 +24,7 @@ export function ListHomepage() {
         </p>
       </div>
       <div className="flex flex-col items-center justify-start gap-2">
-        <PencilSquareIcon className="mb-4 h-10 w-10 text-emerald-400 dark:text-emerald-600" />
+        <PencilSquareIcon className="mb-4 h-10 w-10 text-emerald-400 dark:text-orange-400" />
         <span className="font-bold">Éditable</span>
         <p className="text-center">
           Tu perds pas ce que tu as déjà rempli. Tu peux tout éditer en un temps

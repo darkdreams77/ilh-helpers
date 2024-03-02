@@ -1,37 +1,43 @@
 "use client"
 
-import { Suspense } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useSession } from "next-auth/react"
+import { Suspense, useEffect } from "react"
+import { redirect, useRouter, useSearchParams } from "next/navigation"
 
-import { LogIn } from "@/components/custom/log-in"
-import { SignIn } from "@/components/custom/sign-in"
+import { LogIn } from "@/app/connexion/login"
+import { SignUp } from "@/app/connexion/signup"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 function ConnexionWithParams() {
   const router = useRouter()
   const params = useSearchParams()
   const value = params.get("type") as string
+  const { data } = useSession()
+
+  useEffect(() => {
+    if (data?.user) redirect("/profile")
+  }, [data])
 
   return (
     <Tabs defaultValue={value} className="mx-auto mt-20 w-[400px]">
-      <TabsList className="grid w-full grid-cols-2 bg-white/10 backdrop-blur">
+      <TabsList className="grid w-full grid-cols-2 bg-slate-500/10 backdrop-blur dark:bg-white/10">
         <TabsTrigger
-          value="sign-in"
-          onClick={() => router.push("/connexion?type=sign-in")}
+          value="signup"
+          onClick={() => router.push("/connexion?type=signup")}
         >
           Inscription
         </TabsTrigger>
         <TabsTrigger
-          value="log-in"
-          onClick={() => router.push("/connexion?type=log-in")}
+          value="login"
+          onClick={() => router.push("/connexion?type=login")}
         >
           Connexion
         </TabsTrigger>
       </TabsList>
-      <TabsContent value="sign-in">
-        <SignIn />
+      <TabsContent value="signup">
+        <SignUp />
       </TabsContent>
-      <TabsContent value="log-in">
+      <TabsContent value="login">
         <LogIn />
       </TabsContent>
     </Tabs>

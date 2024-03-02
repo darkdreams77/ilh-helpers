@@ -24,11 +24,11 @@ export default function HeroSection() {
           </div>
           <div className="w-full max-w-sm space-y-2">
             <Button type="button" asChild className="text-md font-bold">
-              <Link href="/connexion?type=sign-in">Inscris-toi</Link>
+              <Link href="/connexion?type=signup">Inscris-toi</Link>
             </Button>{" "}
             <span className="text-xs">
               ou{" "}
-              <Link href="/connexion?type=log-in" className="underline">
+              <Link href="/connexion?type=login" className="underline">
                 connecte-toi
               </Link>
             </span>
