@@ -27,7 +27,7 @@ type HeaderProps = {
 export function Header(props: HeaderProps) {
   const router = useRouter()
   const variants =
-    "supports-backdrop-blur:bg-white/95 sticky top-0 w-full flex-none bg-white backdrop-blur duration-500 dark:border-slate-50/[0.06] dark:bg-slate-900/50 z-50 border-b border-slate-900/10"
+    "supports-backdrop-blur:bg-white/95 sticky top-0 w-full flex-none bg-white/50 backdrop-blur duration-500 dark:border-slate-50/[0.06] dark:bg-slate-900/50 z-50 border-b border-slate-900/10"
 
   return (
     <header className={variants}>
