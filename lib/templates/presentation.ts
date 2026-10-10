@@ -2,7 +2,6 @@ import type { CodeTemplate, TemplateField } from "./types"
 
 const PERSONNAGE = "Le personnage"
 const HORS_JEU = "Hors jeu"
-const TEXTES = "Textes"
 
 const fields: TemplateField[] = [
   {
@@ -89,6 +88,48 @@ const fields: TemplateField[] = [
     help: "Respecte et intègre toutes les origines de ton faceclaim (le site ethnicelebs peut t'aider). Si le personnage est membre d'une famille, prends en compte les origines de la fratrie.",
   },
   {
+    id: "caractere",
+    label: "Caractère",
+    type: "textarea",
+    section: PERSONNAGE,
+    help: "10 traits de caractère, ou 15 lignes minimum.",
+  },
+  {
+    id: "groupe",
+    label: "Groupe",
+    type: "text",
+    section: PERSONNAGE,
+    required: true,
+  },
+  {
+    id: "choixGroupe",
+    label: "Pourquoi ce groupe",
+    type: "textarea",
+    section: PERSONNAGE,
+    help: "5 lignes minimum.",
+  },
+  {
+    id: "admission",
+    label: "Ton admission à Harvard",
+    type: "textarea",
+    section: PERSONNAGE,
+    help: "5 lignes minimum. Étudiants uniquement. Le sujet sur les études à Harvard peut t'inspirer.",
+  },
+  {
+    id: "vieBoston",
+    label: "Ta vie à Boston",
+    type: "textarea",
+    section: PERSONNAGE,
+    help: "5 lignes minimum. Citoyens uniquement.",
+  },
+  {
+    id: "histoire",
+    label: "Histoire",
+    type: "textarea",
+    section: PERSONNAGE,
+    help: "Ou 10 anecdotes détaillées minimum si tu ne veux pas écrire d'histoire.",
+  },
+  {
     id: "pseudoIrl",
     label: "Pseudo IRL",
     type: "text",
@@ -125,7 +166,7 @@ const fields: TemplateField[] = [
     type: "text",
     section: HORS_JEU,
     defaultValue: "inventé",
-    help: "Ex. : « inventé », ou « [url=lien]scénario-prélien[/url] de @\"pseudo\" ».",
+    help: 'Ex. : « inventé », ou « [url=lien]scénario-prélien[/url] de @"pseudo" ».',
   },
   {
     id: "pseudoForum",
@@ -133,48 +174,6 @@ const fields: TemplateField[] = [
     type: "text",
     section: HORS_JEU,
     help: "Utilisé dans la ligne « avatar pris » en bas de l'onglet IRL.",
-  },
-  {
-    id: "caractere",
-    label: "Caractère",
-    type: "textarea",
-    section: TEXTES,
-    help: "10 traits de caractère, ou 15 lignes minimum.",
-  },
-  {
-    id: "groupe",
-    label: "Groupe",
-    type: "text",
-    section: TEXTES,
-    required: true,
-  },
-  {
-    id: "choixGroupe",
-    label: "Pourquoi ce groupe",
-    type: "textarea",
-    section: TEXTES,
-    help: "5 lignes minimum.",
-  },
-  {
-    id: "admission",
-    label: "Ton admission à Harvard",
-    type: "textarea",
-    section: TEXTES,
-    help: "5 lignes minimum. Étudiants uniquement. Le sujet sur les études à Harvard peut t'inspirer.",
-  },
-  {
-    id: "vieBoston",
-    label: "Ta vie à Boston",
-    type: "textarea",
-    section: TEXTES,
-    help: "5 lignes minimum. Citoyens uniquement.",
-  },
-  {
-    id: "histoire",
-    label: "Histoire",
-    type: "textarea",
-    section: TEXTES,
-    help: "Ou 10 anecdotes détaillées minimum si tu ne veux pas écrire d'histoire.",
   },
 ]
 

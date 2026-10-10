@@ -1,6 +1,6 @@
 "use client"
 
-import { MoonIcon, SunIcon } from "@heroicons/react/24/outline"
+import { EyeIcon, MoonIcon, SunIcon } from "@heroicons/react/24/outline"
 import {
   useCallback,
   useEffect,
@@ -23,6 +23,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerTitle,
+} from "@/components/ui/drawer"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
@@ -49,6 +55,7 @@ import type {
   TemplateField,
   TemplateValues,
 } from "@/lib/templates/types"
+import { cn } from "@/lib/utils"
 
 type CodeGeneratorProps = {
   template: CodeTemplate
@@ -86,24 +93,11 @@ export function CodeGenerator({
     [template, values],
   )
   // Le document ne dépend pas du code : seuls le thème et le mode le
-  // rechargent. Le contenu est envoyé à l'iframe par message (voir ci-dessous).
+  // rechargent. Le contenu est envoyé à l'iframe par message (PreviewPanel).
   const previewDocument = useMemo(
     () => buildPreviewDocument("", theme, previewMode),
     [theme, previewMode],
   )
-  const iframeRef = useRef<HTMLIFrameElement>(null)
-  const previewHtml = useMemo(() => renderPreviewBody(code), [code])
-  const sendPreview = useCallback(
-    () =>
-      iframeRef.current?.contentWindow?.postMessage(
-        { type: MESSAGE_TYPE, html: previewHtml },
-        "*",
-      ),
-    [previewHtml],
-  )
-  // Au changement de code (l'iframe est déjà chargée) ; au chargement : onLoad.
-  useEffect(sendPreview, [sendPreview])
-
   const sections = useMemo(() => {
     const grouped = new Map<string, TemplateField[]>()
     for (const field of template.fields) {
@@ -126,8 +120,28 @@ export function CodeGenerator({
     }
   }
 
+  const isDesktop = useSyncExternalStore(
+    subscribeDesktop,
+    () => window.matchMedia(DESKTOP_QUERY).matches,
+    () => true,
+  )
+  const [sheetOpen, setSheetOpen] = useState(false)
+
+  const panel = (iframeClassName: string) => (
+    <PreviewPanel
+      code={code}
+      previewDocument={previewDocument}
+      previewMode={previewMode}
+      onModeChange={setChosenMode}
+      canSave={characters !== null}
+      onSave={() => setSaveOpen(true)}
+      onCopy={copy}
+      iframeClassName={iframeClassName}
+    />
+  )
+
   return (
-    <div className="grid gap-8 lg:grid-cols-2">
+    <div className="grid gap-8 pb-24 lg:grid-cols-2 lg:pb-0">
       <form
         className="flex flex-col gap-8"
         onSubmit={(event) => event.preventDefault()}
@@ -149,57 +163,40 @@ export function CodeGenerator({
         ))}
       </form>
 
-      <div className="lg:sticky lg:top-24 lg:self-start">
-        <Tabs defaultValue="apercu">
-          <div className="flex items-center justify-between gap-4">
-            <TabsList>
-              <TabsTrigger value="apercu">Aperçu</TabsTrigger>
-              <TabsTrigger value="code">Code</TabsTrigger>
-            </TabsList>
-            <div className="flex items-center gap-2">
-              <PreviewModeToggle value={previewMode} onChange={setChosenMode} />
-              {characters && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setSaveOpen(true)}
-                >
-                  Enregistrer
-                </Button>
-              )}
-              <Button type="button" onClick={copy}>
-                Copier le code
-              </Button>
-            </div>
-          </div>
-          {!characters && (
-            <p className="text-muted-foreground mt-3 text-sm">
-              <Link href="/connexion" className="underline">
-                Connecte-toi
-              </Link>{" "}
-              pour enregistrer ce code et le retrouver dans ton espace.
-            </p>
-          )}
-          <TabsContent value="apercu">
-            <iframe
-              ref={iframeRef}
-              onLoad={sendPreview}
-              title="Aperçu du code"
-              sandbox="allow-scripts"
-              srcDoc={previewDocument}
-              className="border-border h-[75vh] w-full border bg-white"
-            />
-          </TabsContent>
-          <TabsContent value="code">
-            <Textarea
-              readOnly
-              value={code}
-              className="h-[75vh] font-mono text-xs"
-              onFocus={(event) => event.currentTarget.select()}
-            />
-          </TabsContent>
-        </Tabs>
-      </div>
+      {isDesktop ? (
+        <div className="lg:sticky lg:top-24 lg:self-start">
+          {panel("h-[75vh]")}
+        </div>
+      ) : (
+        <>
+          <Button
+            type="button"
+            size="lg"
+            className="fixed right-4 bottom-4 z-40 h-12 gap-2 px-6 shadow-lg"
+            onClick={() => setSheetOpen(true)}
+          >
+            <EyeIcon className="size-5" />
+            Aperçu
+          </Button>
+          <Drawer
+            open={sheetOpen}
+            onOpenChange={setSheetOpen}
+            shouldScaleBackground={false}
+            handleOnly
+          >
+            <DrawerContent className="h-[90dvh]">
+              <DrawerTitle className="sr-only">Aperçu du code</DrawerTitle>
+              <DrawerDescription className="sr-only">
+                Aperçu en direct et code à copier.
+              </DrawerDescription>
+              <div className="min-h-0 flex-1 overflow-y-auto p-4">
+                {panel("h-[calc(90dvh-9rem)]")}
+              </div>
+            </DrawerContent>
+          </Drawer>
+        </>
+      )}
+
       {characters && (
         <SaveDialog
           open={saveOpen}
@@ -211,6 +208,101 @@ export function CodeGenerator({
         />
       )}
     </div>
+  )
+}
+
+const DESKTOP_QUERY = "(min-width: 1024px)"
+
+function subscribeDesktop(onChange: () => void) {
+  const query = window.matchMedia(DESKTOP_QUERY)
+  query.addEventListener("change", onChange)
+  return () => query.removeEventListener("change", onChange)
+}
+
+type PreviewPanelProps = {
+  code: string
+  previewDocument: string
+  previewMode: PreviewMode
+  onModeChange: (mode: PreviewMode) => void
+  canSave: boolean
+  onSave: () => void
+  onCopy: () => void
+  iframeClassName: string
+}
+
+/** Onglets Aperçu / Code et leurs actions, utilisé sur la page et dans le sheet mobile. */
+function PreviewPanel({
+  code,
+  previewDocument,
+  previewMode,
+  onModeChange,
+  canSave,
+  onSave,
+  onCopy,
+  iframeClassName,
+}: PreviewPanelProps) {
+  const iframeRef = useRef<HTMLIFrameElement>(null)
+  const previewHtml = useMemo(() => renderPreviewBody(code), [code])
+  const sendPreview = useCallback(
+    () =>
+      iframeRef.current?.contentWindow?.postMessage(
+        { type: MESSAGE_TYPE, html: previewHtml },
+        "*",
+      ),
+    [previewHtml],
+  )
+  // Au changement de code (l'iframe est déjà chargée) ; au chargement : onLoad.
+  useEffect(sendPreview, [sendPreview])
+
+  return (
+    <Tabs defaultValue="apercu">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <TabsList>
+          <TabsTrigger value="apercu">Aperçu</TabsTrigger>
+          <TabsTrigger value="code">Code</TabsTrigger>
+        </TabsList>
+        <div className="flex items-center gap-2">
+          <PreviewModeToggle value={previewMode} onChange={onModeChange} />
+          {canSave && (
+            <Button type="button" variant="outline" onClick={onSave}>
+              Enregistrer
+            </Button>
+          )}
+          <Button type="button" onClick={onCopy}>
+            Copier
+          </Button>
+        </div>
+      </div>
+      {!canSave && (
+        <p className="text-muted-foreground mt-3 text-sm">
+          <Link href="/connexion" className="underline">
+            Connecte-toi
+          </Link>{" "}
+          pour enregistrer ce code et le retrouver dans ton espace.
+        </p>
+      )}
+      <TabsContent value="apercu">
+        <iframe
+          ref={iframeRef}
+          onLoad={sendPreview}
+          title="Aperçu du code"
+          sandbox="allow-scripts"
+          srcDoc={previewDocument}
+          className={cn(
+            "border-border w-full border bg-white",
+            iframeClassName,
+          )}
+        />
+      </TabsContent>
+      <TabsContent value="code">
+        <Textarea
+          readOnly
+          value={code}
+          className={cn("font-mono text-xs", iframeClassName)}
+          onFocus={(event) => event.currentTarget.select()}
+        />
+      </TabsContent>
+    </Tabs>
   )
 }
 

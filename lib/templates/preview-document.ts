@@ -75,6 +75,7 @@ export function buildPreviewDocument(
 
   return `<!doctype html>
 <html lang="fr"${htmlAttributes} style="color-scheme:${mode}"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'nonce-${SCRIPT_NONCE}'; img-src * data:; style-src 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src https://fonts.gstatic.com https://cdn.jsdelivr.net;">
 <link rel="stylesheet" href="${FONTS}">
 <link rel="stylesheet" href="${BOOTSTRAP_ICONS}">
