@@ -14,29 +14,55 @@ export type PreviewMode = "light" | "dark"
 
 const SCRIPT_NONCE = "ilh-preview-tabs"
 
+/** Type des messages parent → iframe qui remplacent le contenu de l'aperçu. */
+export const MESSAGE_TYPE = "ilh-preview-update"
+
 /**
- * Seul script exécuté dans l'aperçu : il reproduit le comportement des onglets
- * (`.tablinks` / `.content_tab`) du forum, sans jQuery.
+ * Seul script exécuté dans l'aperçu. Il reproduit le comportement des onglets
+ * (`.tablinks` / `.content_tab`) du forum, sans jQuery, et remplace le contenu
+ * à chaque message du parent : le document n'est pas rechargé à chaque frappe
+ * (pas de scintillement), et l'onglet actif et le défilement sont conservés.
  */
-const TABS_SCRIPT = `
-document.querySelectorAll('.id_card-v165').forEach(function (container) {
-  var links = container.querySelectorAll('.tablinks');
-  var contents = container.querySelectorAll('.content_tab');
-  links.forEach(function (link, i) {
-    if (i > 0 && contents[i]) contents[i].classList.remove('active');
-    link.addEventListener('click', function (event) {
-      event.preventDefault();
+const PREVIEW_SCRIPT = `
+var root = document.getElementById('root');
+var activeTabs = {};
+function initTabs() {
+  root.querySelectorAll('.id_card-v165').forEach(function (container, c) {
+    var links = container.querySelectorAll('.tablinks');
+    var contents = container.querySelectorAll('.content_tab');
+    function show(index) {
+      activeTabs[c] = index;
       contents.forEach(function (content, j) {
-        content.classList.toggle('active', j === i);
-        if (links[j]) links[j].classList.toggle('active', j === i);
+        content.classList.toggle('active', j === index);
+        if (links[j]) links[j].classList.toggle('active', j === index);
+      });
+    }
+    if (contents.length) show(Math.min(activeTabs[c] || 0, contents.length - 1));
+    links.forEach(function (link, i) {
+      link.addEventListener('click', function (event) {
+        event.preventDefault();
+        show(i);
       });
     });
   });
+}
+initTabs();
+window.addEventListener('message', function (event) {
+  var data = event.data;
+  if (event.source !== window.parent || !data || data.type !== '${MESSAGE_TYPE}') return;
+  if (typeof data.html !== 'string') return;
+  root.innerHTML = data.html;
+  initTabs();
 });`
 
+/** HTML du corps de l'aperçu pour un code donné. */
+export function renderPreviewBody(code: string): string {
+  return bbcodeToHtml(code).replace(/\n/g, "<br>")
+}
+
 /**
- * Document HTML de l'aperçu, destiné à un `<iframe sandbox="allow-scripts">`
- * (origine opaque). La CSP n'autorise que le script des onglets ci-dessus : le
+ * Document HTML de l'aperçu (coque + contenu initial), destiné à un `<iframe sandbox="allow-scripts">`
+ * (origine opaque). La CSP n'autorise que le script ci-dessus : le
  * code saisi par l'utilisateur ne s'exécute jamais.
  */
 export function buildPreviewDocument(
@@ -60,5 +86,5 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere}
 .tabs button{cursor:pointer}
 .content_tab:not(.active){display:none}</style>
 ${FORUM_STYLESHEETS.map((href) => `<link rel="stylesheet" href="${href}">`).join("\n")}
-</head><body>${bbcodeToHtml(code).replace(/\n/g, "<br>")}<script nonce="${SCRIPT_NONCE}">${TABS_SCRIPT}</script></body></html>`
+</head><body><div id="root">${renderPreviewBody(code)}</div><script nonce="${SCRIPT_NONCE}">${PREVIEW_SCRIPT}</script></body></html>`
 }

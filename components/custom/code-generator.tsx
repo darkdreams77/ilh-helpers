@@ -1,10 +1,17 @@
 "use client"
 
 import { MoonIcon, SunIcon } from "@heroicons/react/24/outline"
-import { useTheme } from "next-themes"
-import { useMemo, useState } from "react"
-import Link from "next/link"
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react"
 import { useAction } from "next-safe-action/hooks"
+import { useTheme } from "next-themes"
+import Link from "next/link"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -19,7 +26,6 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   Select,
   SelectContent,
@@ -27,11 +33,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { saveCodeAction } from "@/lib/characters/actions"
 import type { ForumTheme } from "@/lib/forum-theme"
 import {
   buildPreviewDocument,
+  MESSAGE_TYPE,
+  renderPreviewBody,
   type PreviewMode,
 } from "@/lib/templates/preview-document"
 import { renderTemplate, withDefaults } from "@/lib/templates/render"
@@ -59,8 +68,15 @@ export function CodeGenerator({
 }: CodeGeneratorProps) {
   const { resolvedTheme } = useTheme()
   const [chosenMode, setChosenMode] = useState<PreviewMode | null>(null)
+  // `resolvedTheme` n'est connu que côté client : on attend l'hydratation pour
+  // que le rendu serveur et le premier rendu client coïncident.
+  const hydrated = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  )
   const previewMode: PreviewMode =
-    chosenMode ?? (resolvedTheme === "dark" ? "dark" : "light")
+    chosenMode ?? (hydrated && resolvedTheme === "dark" ? "dark" : "light")
   const [values, setValues] = useState<TemplateValues>(() =>
     withDefaults(template, initialValues),
   )
@@ -69,10 +85,24 @@ export function CodeGenerator({
     () => renderTemplate(template, values),
     [template, values],
   )
+  // Le document ne dépend pas du code : seuls le thème et le mode le
+  // rechargent. Le contenu est envoyé à l'iframe par message (voir ci-dessous).
   const previewDocument = useMemo(
-    () => buildPreviewDocument(code, theme, previewMode),
-    [code, theme, previewMode],
+    () => buildPreviewDocument("", theme, previewMode),
+    [theme, previewMode],
   )
+  const iframeRef = useRef<HTMLIFrameElement>(null)
+  const previewHtml = useMemo(() => renderPreviewBody(code), [code])
+  const sendPreview = useCallback(
+    () =>
+      iframeRef.current?.contentWindow?.postMessage(
+        { type: MESSAGE_TYPE, html: previewHtml },
+        "*",
+      ),
+    [previewHtml],
+  )
+  // Au changement de code (l'iframe est déjà chargée) ; au chargement : onLoad.
+  useEffect(sendPreview, [sendPreview])
 
   const sections = useMemo(() => {
     const grouped = new Map<string, TemplateField[]>()
@@ -104,7 +134,7 @@ export function CodeGenerator({
       >
         {sections.map(([section, fields]) => (
           <fieldset key={section} className="flex flex-col gap-4">
-            <legend className="display mb-2 w-full border-b border-border pb-2 text-2xl">
+            <legend className="display border-border mb-2 w-full border-b pb-2 text-2xl">
               {section}
             </legend>
             {fields.map((field) => (
@@ -152,10 +182,12 @@ export function CodeGenerator({
           )}
           <TabsContent value="apercu">
             <iframe
+              ref={iframeRef}
+              onLoad={sendPreview}
               title="Aperçu du code"
               sandbox="allow-scripts"
               srcDoc={previewDocument}
-              className="h-[75vh] w-full border border-border bg-white"
+              className="border-border h-[75vh] w-full border bg-white"
             />
           </TabsContent>
           <TabsContent value="code">
@@ -248,7 +280,9 @@ function SaveDialog({
                     {character.name}
                   </SelectItem>
                 ))}
-                <SelectItem value={NEW_CHARACTER}>Nouveau personnage…</SelectItem>
+                <SelectItem value={NEW_CHARACTER}>
+                  Nouveau personnage…
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -355,7 +389,7 @@ function PreviewModeToggle({
     <div
       role="group"
       aria-label="Thème de l'aperçu"
-      className="flex border border-border"
+      className="border-border flex border"
     >
       {previewModes.map(({ value: mode, label, Icon }) => (
         <Button
