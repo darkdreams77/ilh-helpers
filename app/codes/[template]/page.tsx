@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation"
 
+import { PageContainer } from "@/components/custom/page-container"
 import { CodeGenerator } from "@/components/custom/code-generator"
 import { getForumThemeVariables } from "@/lib/forum-theme"
 import { getTemplate, templates } from "@/lib/templates"
@@ -22,14 +23,13 @@ export default async function CodePage({ params }: PageProps) {
   const themeVariables = await getForumThemeVariables()
 
   return (
-    <>
-      <h1 className="text-2xl font-semibold tracking-tight">
-        {template.title}
-      </h1>
-      <p className="text-muted-foreground mt-1 mb-8 max-w-2xl">
+    <PageContainer>
+      <p className="label text-crimson">Gabarit</p>
+      <h1 className="display mt-2 text-4xl md:text-6xl">{template.title}</h1>
+      <p className="text-muted-foreground mt-3 mb-10 max-w-2xl">
         {template.description}
       </p>
       <CodeGenerator template={template} themeVariables={themeVariables} />
-    </>
+    </PageContainer>
   )
 }

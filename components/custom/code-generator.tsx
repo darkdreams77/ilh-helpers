@@ -67,7 +67,7 @@ export function CodeGenerator({
       >
         {sections.map(([section, fields]) => (
           <fieldset key={section} className="flex flex-col gap-4">
-            <legend className="mb-2 w-full border-b pb-2 text-base font-semibold">
+            <legend className="display mb-2 w-full border-b border-ink pb-2 text-2xl">
               {section}
             </legend>
             {fields.map((field) => (
@@ -98,7 +98,7 @@ export function CodeGenerator({
               title="Aperçu du code"
               sandbox=""
               srcDoc={previewDocument}
-              className="h-[75vh] w-full rounded-lg border bg-white"
+              className="h-[75vh] w-full border border-ink bg-white"
             />
           </TabsContent>
           <TabsContent value="code">

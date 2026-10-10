@@ -28,7 +28,7 @@ type HeaderProps = {
 export function Header(props: HeaderProps) {
   const router = useRouter()
   const variants =
-    "sticky top-0 z-50 w-full flex-none border-b bg-background/95 backdrop-blur-sm"
+    "sticky top-0 z-50 w-full flex-none border-b border-ink bg-background/95 backdrop-blur-sm"
 
   return (
     <header className={variants}>
@@ -46,13 +46,13 @@ export function Header(props: HeaderProps) {
               />
             </Link>
             <Link href="/">
-              <span className="font-semibold tracking-tight">I Love Harvard</span>
+              <span className="display text-lg tracking-tight">I Love Harvard</span>
             </Link>
           </div>
           <div className="flex items-center gap-6">
             <Link
               href="/codes"
-              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+              className="label underline-offset-8 transition-colors hover:text-crimson hover:underline"
             >
               Codes
             </Link>

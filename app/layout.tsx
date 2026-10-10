@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { Work_Sans } from "next/font/google"
+import { Archivo, Inter, JetBrains_Mono } from "next/font/google"
 
 import "@/styles/globals.css"
 
@@ -10,7 +10,16 @@ import { cn } from "@/lib/utils"
 
 import { Providers } from "./providers"
 
-const WorkSans = Work_Sans({ subsets: ["latin"], variable: "--font-work-sans" })
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
+const archivo = Archivo({
+  subsets: ["latin"],
+  variable: "--font-archivo",
+  weight: ["700", "800", "900"],
+})
+const mono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono-label",
+})
 
 export const metadata: Metadata = {
   title: "ILH · Aide aux codes",
@@ -26,18 +35,15 @@ export default async function RootLayout({
   const user = await auth()
 
   return (
-    <html lang="fr" className="h-full" suppressHydrationWarning>
-      <body
-        className={cn(
-          "flex min-h-screen flex-col justify-between bg-background font-sans text-foreground antialiased",
-          WorkSans.variable,
-        )}
-      >
+    <html
+      lang="fr"
+      className={cn("h-full", inter.variable, archivo.variable, mono.variable)}
+      suppressHydrationWarning
+    >
+      <body className="flex min-h-screen flex-col bg-background font-sans text-foreground antialiased">
         <Providers>
           <Header user={user} />
-          <div className="max-w-8xl mx-auto mt-8 w-full flex-grow px-4 2xl:px-0">
-            {children}
-          </div>
+          <main className="w-full flex-grow">{children}</main>
           <Footer />
         </Providers>
       </body>

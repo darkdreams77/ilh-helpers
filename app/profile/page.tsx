@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation"
 
+import { PageContainer } from "@/components/custom/page-container"
 import { UsedAvatar } from "@/components/custom/avatar"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { auth } from "@/lib/auth/helper"
@@ -15,12 +16,12 @@ export default async function Profile() {
   const newDateUpdatedAt = new Date(updatedAt)
 
   return (
-    <>
+    <PageContainer>
       {image && name && <UsedAvatar image={image} name={name} />}
       <div>{name}</div>
       <div>{email}</div>
       <div>Créé le {newDateCreatedAt.toLocaleDateString("fr-FR")}</div>
       <div>Mis à jour le {newDateUpdatedAt.toLocaleDateString("fr-FR")}</div>
-    </>
+    </PageContainer>
   )
 }

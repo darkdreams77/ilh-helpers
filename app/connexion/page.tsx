@@ -6,6 +6,7 @@ import { redirect, useRouter, useSearchParams } from "next/navigation"
 
 import { LogIn } from "@/app/connexion/login"
 import { SignUp } from "@/app/connexion/signup"
+import { PageContainer } from "@/components/custom/page-container"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 function ConnexionWithParams() {
@@ -46,8 +47,10 @@ function ConnexionWithParams() {
 
 export default function Connexion() {
   return (
-    <Suspense>
-      <ConnexionWithParams />
-    </Suspense>
+    <PageContainer>
+      <Suspense>
+        <ConnexionWithParams />
+      </Suspense>
+    </PageContainer>
   )
 }
