@@ -66,7 +66,7 @@ export function ListHomepage() {
         </div>
       </section>
 
-      <section className="bg-crimson py-24 text-white">
+      <section className="bg-band py-24 text-band-foreground">
         <div className="max-w-8xl mx-auto flex flex-col items-start gap-8 px-4 2xl:px-0">
           <h2 className="display text-5xl text-balance md:text-8xl">
             Ton prochain code, <span className="text-gold">c&apos;est ici.</span>
