@@ -59,8 +59,10 @@ import {
 } from "@/lib/templates/preview-document"
 import {
   countLines,
+  getOptions,
   getProgress,
   isFieldDone,
+  pruneInvalidOptions,
   type SectionProgress,
 } from "@/lib/templates/progress"
 import { renderTemplate, withDefaults } from "@/lib/templates/render"
@@ -131,7 +133,7 @@ export function CodeGenerator({
     })
 
   const setValue = (id: string, value: string) => {
-    const next = { ...values, [id]: value }
+    const next = pruneInvalidOptions(template, { ...values, [id]: value })
     setValues(next)
     // Confettis au moment précis où la fiche devient complète.
     if (!progress.complete && getProgress(template, next).complete) {
@@ -186,6 +188,7 @@ export function CodeGenerator({
                 key={field.id}
                 field={field}
                 value={values[field.id] ?? ""}
+                options={getOptions(field, values)}
                 onChange={(value) => setValue(field.id, value)}
               />
             ))}
@@ -439,10 +442,11 @@ function SaveDialog({
 type FieldInputProps = {
   field: TemplateField
   value: string
+  options: { value: string; label: string }[]
   onChange: (value: string) => void
 }
 
-function FieldInput({ field, value, onChange }: FieldInputProps) {
+function FieldInput({ field, value, options, onChange }: FieldInputProps) {
   const inputId = `field-${field.id}`
   const done = field.type !== "select" && isFieldDone(field, value)
   const lines = countLines(value)
@@ -493,6 +497,20 @@ function FieldInput({ field, value, onChange }: FieldInputProps) {
           onChange={(event) => onChange(event.target.value)}
         />
       )}
+      {field.type === "dropdown" && (
+        <Select value={value} onValueChange={onChange}>
+          <SelectTrigger id={inputId}>
+            <SelectValue placeholder={field.placeholder} />
+          </SelectTrigger>
+          <SelectContent>
+            {options.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
       {field.type === "select" && (
         <RadioGroup
           id={inputId}
@@ -500,7 +518,7 @@ function FieldInput({ field, value, onChange }: FieldInputProps) {
           onValueChange={onChange}
           className="flex gap-4"
         >
-          {field.options?.map((option) => (
+          {options.map((option) => (
             <div key={option.value} className="flex items-center gap-2">
               <RadioGroupItem
                 id={`${inputId}-${option.value}`}

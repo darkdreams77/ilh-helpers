@@ -60,3 +60,27 @@ export function getProgress(
   const total = sections.reduce((sum, s) => sum + s.total, 0)
   return { sections, done, total, complete: total > 0 && done === total }
 }
+
+/** Options d'un champ à choix, compte tenu des valeurs des autres champs. */
+export function getOptions(field: TemplateField, values: TemplateValues) {
+  if (field.optionsBy) {
+    return field.optionsBy.options[values[field.optionsBy.field] ?? ""] ?? []
+  }
+  return field.options ?? []
+}
+
+/** Vide les champs à options dont la valeur n'existe plus après un changement. */
+export function pruneInvalidOptions(
+  template: CodeTemplate,
+  values: TemplateValues,
+): TemplateValues {
+  const next = { ...values }
+  for (const field of template.fields) {
+    if (!field.optionsBy) continue
+    const value = next[field.id] ?? ""
+    if (value && !getOptions(field, next).some((o) => o.value === value)) {
+      next[field.id] = ""
+    }
+  }
+  return next
+}

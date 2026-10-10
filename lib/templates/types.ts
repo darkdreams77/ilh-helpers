@@ -1,4 +1,4 @@
-export type FieldType = "text" | "textarea" | "url" | "select"
+export type FieldType = "text" | "textarea" | "url" | "select" | "dropdown"
 
 export type TemplateField = {
   id: string
@@ -10,6 +10,11 @@ export type TemplateField = {
   placeholder?: string
   required?: boolean
   options?: { value: string; label: string }[]
+  /** Liste déroulante dont les options dépendent de la valeur d'un autre champ. */
+  optionsBy?: {
+    field: string
+    options: Record<string, { value: string; label: string }[]>
+  }
   defaultValue?: string
   /** Nombre de lignes minimum attendu (affiche un compteur). */
   minLines?: number

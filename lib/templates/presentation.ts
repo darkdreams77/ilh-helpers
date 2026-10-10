@@ -3,6 +3,9 @@ import type { CodeTemplate, TemplateField } from "./types"
 const PERSONNAGE = "Le personnage"
 const HORS_JEU = "Hors jeu"
 
+const capitalize = (text: string) =>
+  text.replace(/\b\p{L}/gu, (letter) => letter.toUpperCase())
+
 const fields: TemplateField[] = [
   {
     id: "typePersonnage",
@@ -97,9 +100,29 @@ const fields: TemplateField[] = [
   {
     id: "groupe",
     label: "Groupe",
-    type: "text",
+    type: "dropdown",
     section: PERSONNAGE,
     required: true,
+    placeholder: "Choisis un groupe",
+    optionsBy: {
+      field: "typePersonnage",
+      options: {
+        etudiant: [
+          "adams house",
+          "franklin house",
+          "kirkland house",
+          "pforzheimer house",
+          "student",
+        ].map((value) => ({ value, label: capitalize(value) })),
+        citoyen: [
+          "dream chasers",
+          "power circle",
+          "city spotlight",
+          "good souls",
+          "everyday heroes",
+        ].map((value) => ({ value, label: capitalize(value) })),
+      },
+    },
   },
   {
     id: "choixGroupe",

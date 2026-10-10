@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 
-import { countLines, getProgress } from "./progress"
+import { presentation } from "./presentation"
+import { countLines, getProgress, pruneInvalidOptions } from "./progress"
 import type { CodeTemplate } from "./types"
 
 const template: CodeTemplate = {
@@ -45,5 +46,14 @@ describe("progress", () => {
   it("retire les champs masqués du total", () => {
     const result = getProgress(template, { type: "b", nom: "x" })
     expect(result).toMatchObject({ done: 1, total: 1, complete: true })
+  })
+
+  it("vide le groupe quand le type de personnage change", () => {
+    const base = { typePersonnage: "etudiant", groupe: "adams house" }
+    expect(pruneInvalidOptions(presentation, base).groupe).toBe("adams house")
+    expect(
+      pruneInvalidOptions(presentation, { ...base, typePersonnage: "citoyen" })
+        .groupe,
+    ).toBe("")
   })
 })
