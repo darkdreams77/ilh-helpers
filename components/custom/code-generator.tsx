@@ -3,14 +3,32 @@
 import { MoonIcon, SunIcon } from "@heroicons/react/24/outline"
 import { useTheme } from "next-themes"
 import { useMemo, useState } from "react"
+import Link from "next/link"
+import { useAction } from "next-safe-action/hooks"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
+import { saveCodeAction } from "@/lib/characters/actions"
 import type { ForumTheme } from "@/lib/forum-theme"
 import {
   buildPreviewDocument,
@@ -26,18 +44,25 @@ import type {
 type CodeGeneratorProps = {
   template: CodeTemplate
   theme: ForumTheme
+  /** Personnages de l'utilisateur connecté, `null` si anonyme. */
+  characters: { id: string; name: string }[] | null
+  initialValues?: TemplateValues
+  initialCharacterId?: string
 }
 
 export function CodeGenerator({
   template,
   theme,
+  characters,
+  initialValues = {},
+  initialCharacterId,
 }: CodeGeneratorProps) {
   const { resolvedTheme } = useTheme()
   const [chosenMode, setChosenMode] = useState<PreviewMode | null>(null)
   const previewMode: PreviewMode =
     chosenMode ?? (resolvedTheme === "dark" ? "dark" : "light")
   const [values, setValues] = useState<TemplateValues>(() =>
-    withDefaults(template, {}),
+    withDefaults(template, initialValues),
   )
 
   const code = useMemo(
@@ -59,6 +84,8 @@ export function CodeGenerator({
 
   const setValue = (id: string, value: string) =>
     setValues((current) => ({ ...current, [id]: value }))
+
+  const [saveOpen, setSaveOpen] = useState(false)
 
   const copy = async () => {
     try {
@@ -101,11 +128,28 @@ export function CodeGenerator({
             </TabsList>
             <div className="flex items-center gap-2">
               <PreviewModeToggle value={previewMode} onChange={setChosenMode} />
+              {characters && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setSaveOpen(true)}
+                >
+                  Enregistrer
+                </Button>
+              )}
               <Button type="button" onClick={copy}>
                 Copier le code
               </Button>
             </div>
           </div>
+          {!characters && (
+            <p className="text-muted-foreground mt-3 text-sm">
+              <Link href="/connexion" className="underline">
+                Connecte-toi
+              </Link>{" "}
+              pour enregistrer ce code et le retrouver dans ton espace.
+            </p>
+          )}
           <TabsContent value="apercu">
             <iframe
               title="Aperçu du code"
@@ -124,7 +168,114 @@ export function CodeGenerator({
           </TabsContent>
         </Tabs>
       </div>
+      {characters && (
+        <SaveDialog
+          open={saveOpen}
+          onOpenChange={setSaveOpen}
+          templateId={template.id}
+          values={values}
+          characters={characters}
+          initialCharacterId={initialCharacterId}
+        />
+      )}
     </div>
+  )
+}
+
+const NEW_CHARACTER = "__new__"
+
+type SaveDialogProps = {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  templateId: string
+  values: TemplateValues
+  characters: { id: string; name: string }[]
+  initialCharacterId?: string
+}
+
+function SaveDialog({
+  open,
+  onOpenChange,
+  templateId,
+  values,
+  characters,
+  initialCharacterId,
+}: SaveDialogProps) {
+  const [choice, setChoice] = useState(
+    initialCharacterId ?? (characters[0]?.id || NEW_CHARACTER),
+  )
+  const [newName, setNewName] = useState("")
+  const isNew = choice === NEW_CHARACTER
+  const name = (newName || values.pseudo || "").trim()
+
+  const { execute, isPending } = useAction(saveCodeAction, {
+    onSuccess: () => {
+      toast.success("Code enregistré !")
+      onOpenChange(false)
+    },
+    onError: ({ error }) => {
+      toast.error(error.serverError ?? "Enregistrement impossible.")
+    },
+  })
+
+  const submit = () =>
+    execute({
+      templateId,
+      values,
+      ...(isNew ? { newCharacterName: name } : { characterId: choice }),
+    })
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Enregistrer ce code</DialogTitle>
+          <DialogDescription>
+            Il remplace le code déjà enregistré pour ce gabarit et ce
+            personnage.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="save-character">Personnage</Label>
+            <Select value={choice} onValueChange={setChoice}>
+              <SelectTrigger id="save-character">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {characters.map((character) => (
+                  <SelectItem key={character.id} value={character.id}>
+                    {character.name}
+                  </SelectItem>
+                ))}
+                <SelectItem value={NEW_CHARACTER}>Nouveau personnage…</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          {isNew && (
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="save-name">Nom du personnage</Label>
+              <Input
+                id="save-name"
+                value={newName}
+                placeholder={values.pseudo}
+                maxLength={80}
+                onChange={(event) => setNewName(event.target.value)}
+              />
+            </div>
+          )}
+        </div>
+        <DialogFooter>
+          <Button
+            type="button"
+            disabled={isPending || (isNew && !name)}
+            onClick={submit}
+          >
+            Enregistrer
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }
 

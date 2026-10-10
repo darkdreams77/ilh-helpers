@@ -5,7 +5,14 @@ import { templates } from "@/lib/templates"
 
 export const metadata = { title: "Codes · ILH" }
 
-export default function CodesPage() {
+export default async function CodesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ personnage?: string }>
+}) {
+  const { personnage } = await searchParams
+  const query = personnage ? `?personnage=${encodeURIComponent(personnage)}` : ""
+
   return (
     <PageContainer>
       <p className="label text-crimson">Gabarits</p>
@@ -17,7 +24,7 @@ export default function CodesPage() {
         {templates.map((template, index) => (
           <Link
             key={template.id}
-            href={`/codes/${template.id}`}
+            href={`/codes/${template.id}${query}`}
             className="group flex min-h-56 flex-col justify-between gap-8 p-8 transition-colors hover:bg-band hover:text-band-foreground"
           >
             <span className="label text-crimson group-hover:text-gold">

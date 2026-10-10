@@ -52,6 +52,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
   passwordHash  String?
+  characters    Character[]
 }
 
 model VerificationToken {
@@ -61,4 +62,32 @@ model VerificationToken {
 
   @@unique([identifier, token])
   @@map("verificationtokens")
+}
+
+model Character {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  name      String
+  avatar    String?
+  faceclaim String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  codes     Code[]
+
+  @@index([userId])
+  @@map("characters")
+}
+
+model Code {
+  id          String    @id @default(cuid())
+  characterId String    @map("character_id")
+  templateId  String    @map("template_id")
+  values      Json
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+
+  @@unique([characterId, templateId])
+  @@map("codes")
 }
