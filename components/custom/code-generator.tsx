@@ -52,6 +52,15 @@ import { Textarea } from "@/components/ui/textarea"
 import { saveCodeAction } from "@/lib/characters/actions"
 import type { ForumTheme } from "@/lib/forum-theme"
 import {
+  clearDraft,
+  draftKey,
+  parseDraft,
+  readRawDraft,
+  sameValues,
+  subscribeDraft,
+  writeDraft,
+} from "@/lib/templates/draft"
+import {
   buildPreviewDocument,
   MESSAGE_TYPE,
   renderPreviewBody,
@@ -132,9 +141,28 @@ export function CodeGenerator({
       return next
     })
 
+  // Brouillon local : on ne perd rien si la page est quittée par accident.
+  const storageKey = draftKey(template.id, initialCharacterId)
+  const rawDraft = useSyncExternalStore(
+    subscribeDraft,
+    () => readRawDraft(storageKey),
+    () => null,
+  )
+  const draft = useMemo(() => {
+    const parsed = parseDraft(rawDraft, template)
+    return parsed
+      ? pruneInvalidOptions(template, withDefaults(template, parsed))
+      : null
+  }, [rawDraft, template])
+  const draftAvailable = draft !== null && !sameValues(template, draft, values)
+  const restoreDraft = () => {
+    if (draft) setValues(draft)
+  }
+
   const setValue = (id: string, value: string) => {
     const next = pruneInvalidOptions(template, { ...values, [id]: value })
     setValues(next)
+    writeDraft(storageKey, next)
     // Confettis au moment précis où la fiche devient complète.
     if (!progress.complete && getProgress(template, next).complete) {
       fireConfetti()
@@ -175,6 +203,29 @@ export function CodeGenerator({
         className="flex flex-col gap-6"
         onSubmit={(event) => event.preventDefault()}
       >
+        {draftAvailable && (
+          <div
+            role="status"
+            className="border-border bg-accent/30 border-l-gold flex flex-wrap items-center justify-between gap-3 border border-l-4 p-4"
+          >
+            <p className="font-label text-base font-semibold">
+              Un brouillon de ce formulaire a été retrouvé.
+            </p>
+            <div className="flex gap-2">
+              <Button type="button" size="sm" onClick={restoreDraft}>
+                Restaurer
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => clearDraft(storageKey)}
+              >
+                Ignorer
+              </Button>
+            </div>
+          </div>
+        )}
         <ProgressBar done={progress.done} total={progress.total} />
         {progress.sections.map((section, index) =>
           section.title === "" ? (
