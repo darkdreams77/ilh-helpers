@@ -9,8 +9,8 @@ import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
-import { renderTemplate, withDefaults } from "@/lib/templates/render"
 import { buildPreviewDocument } from "@/lib/templates/preview-document"
+import { renderTemplate, withDefaults } from "@/lib/templates/render"
 import type {
   CodeTemplate,
   TemplateField,
@@ -22,7 +22,10 @@ type CodeGeneratorProps = {
   themeVariables: string
 }
 
-export function CodeGenerator({ template, themeVariables }: CodeGeneratorProps) {
+export function CodeGenerator({
+  template,
+  themeVariables,
+}: CodeGeneratorProps) {
   const [values, setValues] = useState<TemplateValues>(() =>
     withDefaults(template, {}),
   )
@@ -64,7 +67,9 @@ export function CodeGenerator({ template, themeVariables }: CodeGeneratorProps) 
       >
         {sections.map(([section, fields]) => (
           <fieldset key={section} className="flex flex-col gap-4">
-            <legend className="mb-2 text-lg font-bold">{section}</legend>
+            <legend className="mb-2 w-full border-b pb-2 text-base font-semibold">
+              {section}
+            </legend>
             {fields.map((field) => (
               <FieldInput
                 key={field.id}
@@ -84,7 +89,7 @@ export function CodeGenerator({ template, themeVariables }: CodeGeneratorProps) 
               <TabsTrigger value="apercu">Aperçu</TabsTrigger>
               <TabsTrigger value="code">Code</TabsTrigger>
             </TabsList>
-            <Button type="button" onClick={copy} className="font-bold">
+            <Button type="button" onClick={copy}>
               Copier le code
             </Button>
           </div>
@@ -93,7 +98,7 @@ export function CodeGenerator({ template, themeVariables }: CodeGeneratorProps) 
               title="Aperçu du code"
               sandbox=""
               srcDoc={previewDocument}
-              className="h-[75vh] w-full rounded-md border bg-white"
+              className="h-[75vh] w-full rounded-lg border bg-white"
             />
           </TabsContent>
           <TabsContent value="code">
@@ -126,7 +131,7 @@ function FieldInput({ field, value, onChange }: FieldInputProps) {
         {field.required && <span className="text-destructive"> *</span>}
       </Label>
       {field.help && (
-        <p className="text-sm text-muted-foreground">{field.help}</p>
+        <p className="text-muted-foreground text-sm">{field.help}</p>
       )}
       {field.type === "textarea" && (
         <Textarea

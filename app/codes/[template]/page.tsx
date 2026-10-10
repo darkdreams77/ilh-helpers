@@ -23,8 +23,12 @@ export default async function CodePage({ params }: PageProps) {
 
   return (
     <>
-      <h1 className="mb-1 text-3xl font-bold">{template.title}</h1>
-      <p className="mb-8 text-muted-foreground">{template.description}</p>
+      <h1 className="text-2xl font-semibold tracking-tight">
+        {template.title}
+      </h1>
+      <p className="text-muted-foreground mt-1 mb-8 max-w-2xl">
+        {template.description}
+      </p>
       <CodeGenerator template={template} themeVariables={themeVariables} />
     </>
   )

@@ -28,33 +28,36 @@ type HeaderProps = {
 export function Header(props: HeaderProps) {
   const router = useRouter()
   const variants =
-    "supports-backdrop-blur:bg-white/95 sticky top-0 w-full flex-none bg-white/50 backdrop-blur duration-500 dark:border-slate-50/[0.06] dark:bg-slate-900/50 z-50 border-b border-slate-900/10"
+    "sticky top-0 z-50 w-full flex-none border-b bg-background/95 backdrop-blur-sm"
 
   return (
     <header className={variants}>
       <div className="max-w-8xl mx-auto">
-        <div className="flex items-center justify-between p-4 2xl:px-0">
-          <div className="flex items-center justify-start gap-4">
+        <div className="flex h-16 items-center justify-between px-4 2xl:px-0">
+          <div className="flex items-center justify-start gap-3">
             <Link href="/">
               <Image
                 src="/harvard-logo.png"
                 alt="I Love Harvard - Aide aux codes"
                 style={{ objectFit: "cover" }}
-                className="size-8 lg:size-10"
+                className="size-8"
                 width={40}
                 height={40}
               />
             </Link>
             <Link href="/">
-              <span className="text-lg font-bold">I LOVE HARVARD</span>
+              <span className="font-semibold tracking-tight">I Love Harvard</span>
             </Link>
           </div>
           <div className="flex items-center gap-6">
-            <Link href="/codes" className="font-semibold hover:underline">
+            <Link
+              href="/codes"
+              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+            >
               Codes
             </Link>
             <DropdownMenu>
-              <DropdownMenuTrigger>
+              <DropdownMenuTrigger className="rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                 <UsedAvatar
                   image={props?.user?.image || "/placeholder.jpg"}
                   name={props?.user?.name || "Invité"}

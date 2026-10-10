@@ -54,7 +54,7 @@ export function LogIn() {
         return onSubmit(values)
       }}
     >
-      <Card className="bg-card/50 backdrop-blur">
+      <Card>
         <CardHeader>
           <CardTitle>Connexion</CardTitle>
           <CardDescription>

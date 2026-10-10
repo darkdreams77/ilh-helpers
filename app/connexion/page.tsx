@@ -19,8 +19,8 @@ function ConnexionWithParams() {
   }, [data])
 
   return (
-    <Tabs defaultValue={value} className="mx-auto mt-20 w-[400px]">
-      <TabsList className="grid w-full grid-cols-2 bg-slate-500/10 backdrop-blur dark:bg-white/10">
+    <Tabs defaultValue={value} className="mx-auto mt-12 w-full max-w-sm">
+      <TabsList className="grid w-full grid-cols-2">
         <TabsTrigger
           value="signup"
           onClick={() => router.push("/connexion?type=signup")}

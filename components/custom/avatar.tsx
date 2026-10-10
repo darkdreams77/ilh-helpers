@@ -12,7 +12,7 @@ export function UsedAvatar({ image, name, customClasses }: AvatarProps) {
   var matches = name.match(/\b(\w)/g)
   var acronym = matches!.join("")
 
-  const variants = "border-solid border-2 border-slate-400 dark:border-white"
+  const variants = "border"
 
   return (
     <Avatar className={twMerge(variants, customClasses)}>

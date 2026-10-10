@@ -73,7 +73,7 @@ export function SignUp() {
         return onSubmit(values)
       }}
     >
-      <Card className="bg-card/50 backdrop-blur">
+      <Card>
         <CardHeader>
           <CardTitle>Inscription</CardTitle>
           <CardDescription>
