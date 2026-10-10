@@ -14,7 +14,7 @@ const ticker = [
 
 export default function HeroSection() {
   return (
-    <section className="border-b border-ink">
+    <section className="border-b border-border">
       <div className="max-w-8xl mx-auto grid gap-10 px-4 pt-14 pb-16 md:pt-24 lg:grid-cols-[1.3fr_1fr] lg:items-end 2xl:px-0">
         <div className="space-y-8">
           <p className="label text-crimson">I Love Harvard · Aide aux codes</p>
@@ -43,7 +43,7 @@ export default function HeroSection() {
               asChild
               size="lg"
               variant="outline"
-              className="h-12 border-ink px-6 text-base"
+              className="h-12 border-border px-6 text-base"
             >
               <Link href="/connexion?type=signup">Créer un compte</Link>
             </Button>
@@ -51,7 +51,7 @@ export default function HeroSection() {
         </div>
       </div>
       <div
-        className="overflow-hidden border-t border-ink bg-ink py-3 text-paper"
+        className="overflow-hidden border-t border-border bg-band py-3 text-band-foreground"
         aria-hidden
       >
         <div className="animate-marquee flex w-max gap-10 whitespace-nowrap">

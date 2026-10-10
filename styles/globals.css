@@ -32,6 +32,8 @@
   --color-gold: hsl(var(--gold));
   --color-ink: hsl(var(--ink));
   --color-paper: hsl(var(--paper));
+  --color-band: hsl(var(--band));
+  --color-band-foreground: hsl(var(--band-foreground));
 
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
@@ -84,9 +86,12 @@
     --gold: 46 95% 62%;
     --ink: 240 40% 8%;
     --paper: 40 25% 97%;
+    --band: 240 40% 8%;
+    --band-foreground: 40 25% 97%;
   }
 
   .dark {
+    color-scheme: dark;
     --background: 240 30% 6%;
     --foreground: 0 0% 98%;
     --card: 0 0% 9%;
@@ -109,6 +114,8 @@
     --crimson: 350 75% 50%;
     --ink: 240 30% 6%;
     --paper: 240 20% 10%;
+    --band: 240 30% 11%;
+    --band-foreground: 40 25% 97%;
   }
 }
 

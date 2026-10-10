@@ -3,7 +3,8 @@ import { describe, expect, it } from "vitest"
 import { buildPreviewDocument } from "./preview-document"
 
 describe("buildPreviewDocument", () => {
-  const doc = buildPreviewDocument("<p>[b]x[/b]</p>", "--base: #fff;")
+  const theme = { light: "--base: #fff;", dark: "--base: #170101;" }
+  const doc = buildPreviewDocument("<p>[b]x[/b]</p>", theme)
 
   it("charge les feuilles de style du forum", () => {
     expect(doc).toContain("ilh-css-external/presentation.css")
@@ -15,8 +16,21 @@ describe("buildPreviewDocument", () => {
     expect(doc).toContain("<p><b>x</b></p>")
   })
 
-  it("interdit les scripts via la CSP", () => {
+  it("n'autorise que le script des onglets via la CSP", () => {
     expect(doc).toContain("default-src 'none'")
-    expect(doc).not.toMatch(/script-src[^"]*'unsafe/)
+    expect(doc).toMatch(/script-src 'nonce-[\w-]+';/)
+    expect(doc).not.toMatch(/script-src[^;]*'unsafe/)
+  })
+
+  it("laisse sans nonce un script saisi par l'utilisateur", () => {
+    const evil = buildPreviewDocument("<script>alert(1)</script>", theme)
+    expect(evil).toContain("<script>alert(1)</script>")
+  })
+
+  it("applique le mode sombre du forum", () => {
+    const dark = buildPreviewDocument("x", theme, "dark")
+    expect(dark).toContain('class="fa_darkmode"')
+    expect(dark).toContain("html.fa_darkmode{--base: #170101;")
+    expect(doc).not.toContain('class="fa_darkmode"')
   })
 })

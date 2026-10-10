@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { extractRootVariables } from "./forum-theme"
+import { extractDarkVariables, extractRootVariables } from "./forum-theme"
 
 describe("extractRootVariables", () => {
   it("ne garde que le contenu des blocs :root", () => {
@@ -20,5 +20,21 @@ describe("extractRootVariables", () => {
 
   it("renvoie une chaîne vide sans :root", () => {
     expect(extractRootVariables("body{}")).toBe("")
+  })
+})
+
+describe("extractDarkVariables", () => {
+  it("lit le bloc html.fa_darkmode", () => {
+    const css = `:root { --base: #fff; }
+[data-color-scheme="dark"], html.fa_darkmode {
+  --base: #170101;
+}`
+    const out = extractDarkVariables(css)
+    expect(out).toContain("--base: #170101;")
+    expect(out).not.toContain("#fff")
+  })
+
+  it("renvoie une chaîne vide sans mode sombre", () => {
+    expect(extractDarkVariables(":root{--a:1}")).toBe("")
   })
 })

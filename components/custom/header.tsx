@@ -28,7 +28,7 @@ type HeaderProps = {
 export function Header(props: HeaderProps) {
   const router = useRouter()
   const variants =
-    "sticky top-0 z-50 w-full flex-none border-b border-ink bg-background/95 backdrop-blur-sm"
+    "sticky top-0 z-50 w-full flex-none border-b border-border bg-background/95 backdrop-blur-sm"
 
   return (
     <header className={variants}>
@@ -49,13 +49,14 @@ export function Header(props: HeaderProps) {
               <span className="display text-lg tracking-tight">I Love Harvard</span>
             </Link>
           </div>
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4">
             <Link
               href="/codes"
               className="label underline-offset-8 transition-colors hover:text-crimson hover:underline"
             >
               Codes
             </Link>
+            <ToggleDarkMode />
             <DropdownMenu>
               <DropdownMenuTrigger className="rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                 <UsedAvatar
@@ -64,11 +65,8 @@ export function Header(props: HeaderProps) {
                 />
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <ToggleDarkMode />
-
-                {props?.user && (
+                {props?.user ? (
                   <>
-                    <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={() => router.push("/profile")}>
                       Mon profil
                     </DropdownMenuItem>
@@ -77,6 +75,10 @@ export function Header(props: HeaderProps) {
                       Se déconnecter
                     </DropdownMenuItem>
                   </>
+                ) : (
+                  <DropdownMenuItem onClick={() => router.push("/connexion?type=login")}>
+                    Se connecter
+                  </DropdownMenuItem>
                 )}
               </DropdownMenuContent>
             </DropdownMenu>

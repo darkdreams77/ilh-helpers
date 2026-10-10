@@ -2,7 +2,7 @@ import { notFound } from "next/navigation"
 
 import { PageContainer } from "@/components/custom/page-container"
 import { CodeGenerator } from "@/components/custom/code-generator"
-import { getForumThemeVariables } from "@/lib/forum-theme"
+import { getForumTheme } from "@/lib/forum-theme"
 import { getTemplate, templates } from "@/lib/templates"
 
 type PageProps = { params: Promise<{ template: string }> }
@@ -20,7 +20,7 @@ export default async function CodePage({ params }: PageProps) {
   const template = getTemplate((await params).template)
   if (!template) notFound()
 
-  const themeVariables = await getForumThemeVariables()
+  const theme = await getForumTheme()
 
   return (
     <PageContainer>
@@ -29,7 +29,7 @@ export default async function CodePage({ params }: PageProps) {
       <p className="text-muted-foreground mt-3 mb-10 max-w-2xl">
         {template.description}
       </p>
-      <CodeGenerator template={template} themeVariables={themeVariables} />
+      <CodeGenerator template={template} theme={theme} />
     </PageContainer>
   )
 }

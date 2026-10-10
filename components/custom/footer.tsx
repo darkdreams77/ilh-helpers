@@ -5,7 +5,7 @@ export function Footer() {
   const thisYear = new Date().getFullYear()
 
   return (
-    <footer className="w-full flex-none border-t border-ink bg-ink text-paper">
+    <footer className="w-full flex-none border-t border-border bg-band text-band-foreground">
       <div className="max-w-8xl mx-auto">
         <div className="flex flex-col items-center justify-between gap-2 px-4 py-6 label md:flex-row 2xl:px-0">
           <span>© {thisYear} ILH · Aide aux codes</span>

@@ -1,5 +1,7 @@
 "use client"
 
+import { MoonIcon, SunIcon } from "@heroicons/react/24/outline"
+import { useTheme } from "next-themes"
 import { useMemo, useState } from "react"
 import { toast } from "sonner"
 
@@ -9,7 +11,11 @@ import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
-import { buildPreviewDocument } from "@/lib/templates/preview-document"
+import type { ForumTheme } from "@/lib/forum-theme"
+import {
+  buildPreviewDocument,
+  type PreviewMode,
+} from "@/lib/templates/preview-document"
 import { renderTemplate, withDefaults } from "@/lib/templates/render"
 import type {
   CodeTemplate,
@@ -19,13 +25,17 @@ import type {
 
 type CodeGeneratorProps = {
   template: CodeTemplate
-  themeVariables: string
+  theme: ForumTheme
 }
 
 export function CodeGenerator({
   template,
-  themeVariables,
+  theme,
 }: CodeGeneratorProps) {
+  const { resolvedTheme } = useTheme()
+  const [chosenMode, setChosenMode] = useState<PreviewMode | null>(null)
+  const previewMode: PreviewMode =
+    chosenMode ?? (resolvedTheme === "dark" ? "dark" : "light")
   const [values, setValues] = useState<TemplateValues>(() =>
     withDefaults(template, {}),
   )
@@ -35,8 +45,8 @@ export function CodeGenerator({
     [template, values],
   )
   const previewDocument = useMemo(
-    () => buildPreviewDocument(code, themeVariables),
-    [code, themeVariables],
+    () => buildPreviewDocument(code, theme, previewMode),
+    [code, theme, previewMode],
   )
 
   const sections = useMemo(() => {
@@ -67,7 +77,7 @@ export function CodeGenerator({
       >
         {sections.map(([section, fields]) => (
           <fieldset key={section} className="flex flex-col gap-4">
-            <legend className="display mb-2 w-full border-b border-ink pb-2 text-2xl">
+            <legend className="display mb-2 w-full border-b border-border pb-2 text-2xl">
               {section}
             </legend>
             {fields.map((field) => (
@@ -89,16 +99,19 @@ export function CodeGenerator({
               <TabsTrigger value="apercu">Aperçu</TabsTrigger>
               <TabsTrigger value="code">Code</TabsTrigger>
             </TabsList>
-            <Button type="button" onClick={copy}>
-              Copier le code
-            </Button>
+            <div className="flex items-center gap-2">
+              <PreviewModeToggle value={previewMode} onChange={setChosenMode} />
+              <Button type="button" onClick={copy}>
+                Copier le code
+              </Button>
+            </div>
           </div>
           <TabsContent value="apercu">
             <iframe
               title="Aperçu du code"
-              sandbox=""
+              sandbox="allow-scripts"
               srcDoc={previewDocument}
-              className="h-[75vh] w-full border border-ink bg-white"
+              className="h-[75vh] w-full border border-border bg-white"
             />
           </TabsContent>
           <TabsContent value="code">
@@ -171,6 +184,43 @@ function FieldInput({ field, value, onChange }: FieldInputProps) {
           ))}
         </RadioGroup>
       )}
+    </div>
+  )
+}
+
+const previewModes = [
+  { value: "light", label: "Aperçu clair", Icon: SunIcon },
+  { value: "dark", label: "Aperçu sombre", Icon: MoonIcon },
+] as const
+
+function PreviewModeToggle({
+  value,
+  onChange,
+}: {
+  value: PreviewMode
+  onChange: (mode: PreviewMode) => void
+}) {
+  return (
+    <div
+      role="group"
+      aria-label="Thème de l'aperçu"
+      className="flex border border-border"
+    >
+      {previewModes.map(({ value: mode, label, Icon }) => (
+        <Button
+          key={mode}
+          type="button"
+          size="icon"
+          variant={value === mode ? "default" : "ghost"}
+          className="size-9 rounded-none"
+          aria-label={label}
+          aria-pressed={value === mode}
+          title={label}
+          onClick={() => onChange(mode)}
+        >
+          <Icon className="size-4" />
+        </Button>
+      ))}
     </div>
   )
 }

@@ -33,11 +33,11 @@ export function ListHomepage() {
           </h2>
           <span className="label hidden md:block">Pourquoi</span>
         </div>
-        <div className="grid border border-ink bg-card md:grid-cols-3">
+        <div className="grid border border-border bg-card md:grid-cols-3">
           {features.map(({ title, text }, index) => (
             <div
               key={title}
-              className="flex flex-col gap-4 border-b border-ink p-8 last:border-b-0 md:border-r md:border-b-0 md:last:border-r-0"
+              className="flex flex-col gap-4 border-b border-border p-8 last:border-b-0 md:border-r md:border-b-0 md:last:border-r-0"
             >
               <span className="label text-crimson">
                 {String(index + 1).padStart(2, "0")}
@@ -49,17 +49,17 @@ export function ListHomepage() {
         </div>
       </section>
 
-      <section className="bg-ink py-20 text-paper">
+      <section className="bg-band py-20 text-band-foreground">
         <div className="max-w-8xl mx-auto px-4 2xl:px-0">
           <h2 className="display mb-12 text-4xl md:text-6xl">
             Comment ça <span className="hl">marche.</span>
           </h2>
-          <div className="grid gap-px bg-paper/20 md:grid-cols-3">
+          <div className="grid gap-px bg-band-foreground/20 md:grid-cols-3">
             {steps.map(([n, title, text]) => (
-              <div key={n} className="space-y-4 bg-ink p-8">
+              <div key={n} className="space-y-4 bg-band p-8">
                 <span className="display block text-7xl text-gold">{n}</span>
                 <h3 className="display text-2xl">{title}</h3>
-                <p className="text-paper/70">{text}</p>
+                <p className="text-band-foreground/70">{text}</p>
               </div>
             ))}
           </div>
