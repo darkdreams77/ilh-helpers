@@ -170,13 +170,6 @@ const fields: TemplateField[] = [
     defaultValue: "inventé",
     help: 'Ex. : « inventé », ou « [url=lien]scénario-prélien[/url] de @"pseudo" ».',
   },
-  {
-    id: "pseudoForum",
-    label: "Ton pseudo sur le forum",
-    type: "text",
-    section: HORS_JEU,
-    help: "Utilisé dans la ligne « avatar pris » en bas de l'onglet IRL.",
-  },
 ]
 
 /** Une ligne « libellé : valeur » de la fiche ; `tag` alterne `l` et `m`. */
@@ -212,7 +205,7 @@ const html = [
   line("m", "crédit de l'avatar", "creditAvatar"),
   line("l", "préférences de jeu", "preferencesJeu"),
   line("m", "type de personnage", "origine"),
-  `\n[code]<pris><i class="bi bi-check"></i><b>{{faceclaim}}</b> <span>@"{{pseudoForum}}"</span></pris>[/code]\n`,
+  `\n[code]<pris><i class="bi bi-check"></i><b>{{faceclaim}}</b> <span>@"{{pseudo}}"</span></pris>[/code]\n`,
   `</div></div></div></div>`,
   `<div class="second_block">`,
   `<div class="small"><div class="title"><i class="bi bi-person"></i> caractère</div><div class="content">{{caractere}}</div></div>`,
