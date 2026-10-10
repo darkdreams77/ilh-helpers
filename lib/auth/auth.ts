@@ -7,6 +7,7 @@ import { env } from "../env"
 import prisma from "../prisma"
 import {
   credentialsOverrideJwt,
+  credentialsSignInCallback,
   getCredentialsProvider,
 } from "./credentials-provider"
 
@@ -16,7 +17,6 @@ export const { handlers, auth: baseAuth } = NextAuth((req) => ({
     GoogleProvider({
       clientId: env.GOOGLE_CLIENT_ID,
       clientSecret: env.GOOGLE_CLIENT_SECRET,
-      allowDangerousEmailAccountLinking: true,
     }),
     // 🔑 Add this line and the import to add credentials provider
     getCredentialsProvider(),
@@ -41,6 +41,10 @@ export const { handlers, auth: baseAuth } = NextAuth((req) => ({
       return typedParams.session
     },
   },
-  // 🔑 Add this line and the import to add credentials provider
+  // Credentials provider can't create database sessions on its own:
+  // the signIn event creates the session row and cookie.
+  events: {
+    signIn: credentialsSignInCallback(req),
+  },
   jwt: credentialsOverrideJwt,
 }))

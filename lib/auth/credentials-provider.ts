@@ -1,4 +1,5 @@
 import crypto from "crypto"
+import bcrypt from "bcryptjs"
 import { nanoid } from "nanoid"
 import type { NextAuthConfig } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
@@ -14,17 +15,38 @@ export const validatePassword = (password: string) => {
   return PASSWORD_REGEX.test(password)
 }
 
-export const hashStringWithSalt = (string: string, salt: string) => {
-  const hash = crypto.createHash("sha256")
+const BCRYPT_ROUNDS = 12
 
-  const saltedString = salt + string
+const isLegacyHash = (hash: string) => /^[0-9a-f]{64}$/.test(hash)
 
-  hash.update(saltedString)
+/**
+ * Legacy scheme (SHA-256 salted with NEXTAUTH_SECRET). Only kept to verify
+ * and transparently upgrade hashes created before the bcrypt migration.
+ */
+const legacyHash = (password: string) =>
+  crypto
+    .createHash("sha256")
+    .update(env.NEXTAUTH_SECRET + password)
+    .digest("hex")
 
-  const hashedString = hash.digest("hex")
+export const hashPassword = (password: string) =>
+  bcrypt.hash(password, BCRYPT_ROUNDS)
 
-  return hashedString
+const verifyPassword = async (password: string, hash: string) => {
+  if (isLegacyHash(hash)) {
+    const expected = Buffer.from(legacyHash(password))
+    const actual = Buffer.from(hash)
+    return (
+      expected.length === actual.length &&
+      crypto.timingSafeEqual(expected, actual)
+    )
+  }
+
+  return bcrypt.compare(password, hash)
 }
+
+// Used to keep response time constant when the user does not exist.
+const DUMMY_HASH = bcrypt.hashSync("dummy-password-for-timing", BCRYPT_ROUNDS)
 
 export const getCredentialsProvider = () => {
   return CredentialsProvider({
@@ -36,28 +58,30 @@ export const getCredentialsProvider = () => {
     async authorize(credentials) {
       if (!credentials.email || !credentials.password) return null
 
-      // Add logic here to look up the user from the credentials supplied
-      const passwordHash = hashStringWithSalt(
-        String(credentials.password),
-        env.NEXTAUTH_SECRET,
-      )
+      const email = String(credentials.email).trim().toLowerCase()
+      const password = String(credentials.password)
 
-      const user = await prisma.user.findFirst({
-        where: {
-          email: credentials.email,
-          passwordHash: passwordHash,
-        },
-      })
+      const user = await prisma.user.findUnique({ where: { email } })
 
-      if (user) {
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          image: user.image,
-        }
-      } else {
+      if (!user?.passwordHash) {
+        await bcrypt.compare(password, DUMMY_HASH)
         return null
+      }
+
+      if (!(await verifyPassword(password, user.passwordHash))) return null
+
+      if (isLegacyHash(user.passwordHash)) {
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { passwordHash: await hashPassword(password) },
+        })
+      }
+
+      return {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        image: user.image,
       }
     },
   })

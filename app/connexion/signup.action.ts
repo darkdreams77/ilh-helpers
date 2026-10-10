@@ -1,10 +1,8 @@
 "use server"
 
-import {
-  hashStringWithSalt,
-  validatePassword,
-} from "@/lib/auth/credentials-provider"
-import { env } from "@/lib/env"
+import { Prisma } from "@prisma/client"
+
+import { hashPassword, validatePassword } from "@/lib/auth/credentials-provider"
 import prisma from "@/lib/prisma"
 import { action, ActionError } from "@/lib/server-actions/safe-actions"
 
@@ -20,21 +18,24 @@ export const signUpAction = action(
     }
 
     try {
-      const userData = {
-        email,
-        passwordHash: hashStringWithSalt(password, env.NEXTAUTH_SECRET),
-        name,
-      }
-
       const user = await prisma.user.create({
         data: {
-          ...userData,
+          email: email.trim().toLowerCase(),
+          passwordHash: await hashPassword(password),
+          name,
         },
+        select: { id: true },
       })
 
       return user
-    } catch {
-      throw new ActionError("Email already exists")
+    } catch (e) {
+      if (
+        e instanceof Prisma.PrismaClientKnownRequestError &&
+        e.code === "P2002"
+      ) {
+        throw new ActionError("Email already exists")
+      }
+      throw e
     }
   },
 )
