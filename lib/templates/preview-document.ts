@@ -18,7 +18,9 @@ const SCRIPT_NONCE = "ilh-preview-tabs"
 export const MESSAGE_TYPE = "ilh-preview-update"
 
 /**
- * Seul script exécuté dans l'aperçu. Il reproduit le comportement des onglets
+ * Seul script exécuté dans l'aperçu. Il pose la classe `.mobile` sur `<html>`
+ * quand l'iframe est étroite (le CSS du forum n'a pas de media queries, il
+ * cible `.mobile …`), et reproduit le comportement des onglets
  * (`.tablinks` / `.content_tab`) du forum, sans jQuery, et remplace le contenu
  * à chaque message du parent : le document n'est pas rechargé à chaque frappe
  * (pas de scintillement), et l'onglet actif et le défilement sont conservés.
@@ -26,6 +28,11 @@ export const MESSAGE_TYPE = "ilh-preview-update"
 const PREVIEW_SCRIPT = `
 var root = document.getElementById('root');
 var activeTabs = {};
+function syncMobile() {
+  document.documentElement.classList.toggle('mobile', window.innerWidth <= 768);
+}
+syncMobile();
+window.addEventListener('resize', syncMobile);
 function initTabs() {
   root.querySelectorAll('.id_card-v165').forEach(function (container, c) {
     var links = container.querySelectorAll('.tablinks');
