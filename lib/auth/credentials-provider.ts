@@ -129,7 +129,7 @@ export const credentialsSignInCallback =
       },
     })
 
-    const cookieList = cookies()
+    const cookieList = await cookies()
 
     cookieList.set(tokenName, uuid, {
       expires: expireAt,
