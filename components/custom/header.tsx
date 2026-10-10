@@ -49,7 +49,10 @@ export function Header(props: HeaderProps) {
               <span className="text-lg font-bold">I LOVE HARVARD</span>
             </Link>
           </div>
-          <div className="flex gap-4">
+          <div className="flex items-center gap-6">
+            <Link href="/codes" className="font-semibold hover:underline">
+              Codes
+            </Link>
             <DropdownMenu>
               <DropdownMenuTrigger>
                 <UsedAvatar

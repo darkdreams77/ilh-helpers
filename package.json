@@ -12,6 +12,7 @@
     "lint": "eslint . --fix",
     "format": "prettier --write .",
     "ts": "tsc --noEmit",
+    "test": "vitest run",
     "postinstall": "prisma generate",
     "vercel-build": "prisma generate && prisma migrate deploy && next build"
   },
@@ -72,6 +73,7 @@
     "prettier-plugin-tailwindcss": "^0.8.1",
     "prisma": "^7.10.0",
     "tailwindcss": "^4.3.3",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "vitest": "^5.0.3"
   }
 }
