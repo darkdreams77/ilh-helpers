@@ -11,6 +11,8 @@ export type TemplateField = {
   required?: boolean
   options?: { value: string; label: string }[]
   defaultValue?: string
+  /** Nombre de lignes minimum attendu (affiche un compteur). */
+  minLines?: number
   /** N'affiche le champ que si le champ `field` vaut `equals`. */
   showIf?: { field: string; equals: string }
 }

@@ -1,6 +1,12 @@
 "use client"
 
-import { EyeIcon, MoonIcon, SunIcon } from "@heroicons/react/24/outline"
+import {
+  CheckCircleIcon,
+  ChevronDownIcon,
+  EyeIcon,
+  MoonIcon,
+  SunIcon,
+} from "@heroicons/react/24/outline"
 import {
   useCallback,
   useEffect,
@@ -14,6 +20,7 @@ import { useTheme } from "next-themes"
 import Link from "next/link"
 import { toast } from "sonner"
 
+import { useConfetti } from "@/components/custom/confetti"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -31,6 +38,7 @@ import {
 } from "@/components/ui/drawer"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Progress } from "@/components/ui/progress"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import {
   Select,
@@ -49,6 +57,12 @@ import {
   renderPreviewBody,
   type PreviewMode,
 } from "@/lib/templates/preview-document"
+import {
+  countLines,
+  getProgress,
+  isFieldDone,
+  type SectionProgress,
+} from "@/lib/templates/progress"
 import { renderTemplate, withDefaults } from "@/lib/templates/render"
 import type {
   CodeTemplate,
@@ -103,18 +117,28 @@ export function CodeGenerator({
     () => buildPreviewDocument("", theme, previewMode, !isDesktop),
     [theme, previewMode, isDesktop],
   )
-  const sections = useMemo(() => {
-    const grouped = new Map<string, TemplateField[]>()
-    for (const field of template.fields) {
-      const { showIf } = field
-      if (showIf && (values[showIf.field] ?? "") !== showIf.equals) continue
-      grouped.set(field.section, [...(grouped.get(field.section) ?? []), field])
-    }
-    return [...grouped.entries()]
-  }, [template, values])
+  const progress = useMemo(
+    () => getProgress(template, values),
+    [template, values],
+  )
+  const { fire: fireConfetti, node: confetti } = useConfetti()
+  const [closedSections, setClosedSections] = useState<Set<string>>(new Set())
+  const toggleSection = (title: string) =>
+    setClosedSections((current) => {
+      const next = new Set(current)
+      if (!next.delete(title)) next.add(title)
+      return next
+    })
 
-  const setValue = (id: string, value: string) =>
-    setValues((current) => ({ ...current, [id]: value }))
+  const setValue = (id: string, value: string) => {
+    const next = { ...values, [id]: value }
+    setValues(next)
+    // Confettis au moment précis où la fiche devient complète.
+    if (!progress.complete && getProgress(template, next).complete) {
+      fireConfetti()
+      toast.success("Fiche complète, bravo !")
+    }
+  }
 
   const [saveOpen, setSaveOpen] = useState(false)
 
@@ -122,6 +146,7 @@ export function CodeGenerator({
     try {
       await navigator.clipboard.writeText(code)
       toast.success("Code copié !")
+      fireConfetti()
     } catch {
       toast.error("Impossible de copier : sélectionne le code et copie-le.")
     }
@@ -145,15 +170,18 @@ export function CodeGenerator({
   return (
     <div className="grid gap-8 pb-24 lg:grid-cols-2 lg:pb-0">
       <form
-        className="flex flex-col gap-8"
+        className="flex flex-col gap-6"
         onSubmit={(event) => event.preventDefault()}
       >
-        {sections.map(([section, fields]) => (
-          <fieldset key={section} className="flex flex-col gap-4">
-            <legend className="display border-border mb-2 w-full border-b pb-2 text-2xl">
-              {section}
-            </legend>
-            {fields.map((field) => (
+        <ProgressBar done={progress.done} total={progress.total} />
+        {progress.sections.map((section) => (
+          <FormSection
+            key={section.title}
+            section={section}
+            open={!closedSections.has(section.title)}
+            onToggle={() => toggleSection(section.title)}
+          >
+            {section.fields.map((field) => (
               <FieldInput
                 key={field.id}
                 field={field}
@@ -161,10 +189,11 @@ export function CodeGenerator({
                 onChange={(value) => setValue(field.id, value)}
               />
             ))}
-          </fieldset>
+          </FormSection>
         ))}
       </form>
 
+      {confetti}
       {isDesktop ? (
         <div className="lg:sticky lg:top-24 lg:self-start">
           {panel("h-[75vh]")}
@@ -415,12 +444,22 @@ type FieldInputProps = {
 
 function FieldInput({ field, value, onChange }: FieldInputProps) {
   const inputId = `field-${field.id}`
+  const done = field.type !== "select" && isFieldDone(field, value)
+  const lines = countLines(value)
 
   return (
-    <div className="flex flex-col gap-2">
-      <Label htmlFor={inputId}>
-        {field.label}
-        {field.required && <span className="text-destructive"> *</span>}
+    <div className="animate-in fade-in slide-in-from-top-2 flex flex-col gap-2 duration-300">
+      <Label htmlFor={inputId} className="flex items-center gap-2">
+        <span>
+          {field.label}
+          {field.required && <span className="text-destructive"> *</span>}
+        </span>
+        {done && (
+          <CheckCircleIcon
+            aria-label="Rempli"
+            className="animate-in zoom-in text-gold size-4 duration-200"
+          />
+        )}
       </Label>
       {field.help && (
         <p className="text-muted-foreground text-sm">{field.help}</p>
@@ -433,6 +472,17 @@ function FieldInput({ field, value, onChange }: FieldInputProps) {
           rows={6}
           onChange={(event) => onChange(event.target.value)}
         />
+      )}
+      {field.minLines && (
+        <p
+          className={cn(
+            "label self-end transition-colors",
+            done ? "text-gold" : "text-muted-foreground",
+          )}
+        >
+          {done ? "✓ " : ""}
+          {lines}/{field.minLines} lignes
+        </p>
       )}
       {(field.type === "text" || field.type === "url") && (
         <Input
@@ -501,5 +551,79 @@ function PreviewModeToggle({
         </Button>
       ))}
     </div>
+  )
+}
+
+function ProgressBar({ done, total }: { done: number; total: number }) {
+  const percent = total === 0 ? 0 : Math.round((done / total) * 100)
+  return (
+    <div className="bg-background/90 border-border sticky top-16 z-10 -mx-1 border-b px-1 py-3 backdrop-blur">
+      <div className="mb-2 flex items-baseline justify-between gap-4">
+        <span className="label">
+          {percent === 100 ? "Fiche complète !" : "Ta fiche"}
+        </span>
+        <span className="display text-lg">
+          {done}/{total} · {percent}%
+        </span>
+      </div>
+      <Progress value={percent} className="h-2" />
+    </div>
+  )
+}
+
+type FormSectionProps = {
+  section: SectionProgress
+  open: boolean
+  onToggle: () => void
+  children: React.ReactNode
+}
+
+/** Section repliable avec compteur de champs remplis. */
+function FormSection({ section, open, onToggle, children }: FormSectionProps) {
+  const complete = section.total > 0 && section.done === section.total
+  const contentId = `section-${section.title}`
+
+  return (
+    <fieldset className="border-border bg-card border">
+      <legend className="sr-only">{section.title}</legend>
+      <button
+        type="button"
+        aria-expanded={open}
+        aria-controls={contentId}
+        onClick={onToggle}
+        className="hover:bg-accent/30 flex w-full items-center gap-3 p-4 text-left transition-colors"
+      >
+        <span className="display flex-1 text-2xl">{section.title}</span>
+        {complete ? (
+          <CheckCircleIcon
+            aria-label="Section complète"
+            className="animate-in zoom-in text-gold size-6 duration-300"
+          />
+        ) : (
+          <span className="label">
+            {section.done}/{section.total}
+          </span>
+        )}
+        <ChevronDownIcon
+          className={cn(
+            "size-5 transition-transform duration-300",
+            open && "rotate-180",
+          )}
+        />
+      </button>
+      <div
+        id={contentId}
+        className={cn(
+          "grid transition-[grid-template-rows] duration-300",
+          open ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
+        )}
+      >
+        <div className="overflow-hidden" inert={!open}>
+          <div className="border-border flex flex-col gap-4 border-t p-4">
+            {children}
+          </div>
+        </div>
+      </div>
+    </fieldset>
   )
 }

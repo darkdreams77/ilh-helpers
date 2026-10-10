@@ -106,6 +106,7 @@ const fields: TemplateField[] = [
     label: "Pourquoi ce groupe",
     type: "textarea",
     section: PERSONNAGE,
+    minLines: 5,
     help: "5 lignes minimum.",
   },
   {
@@ -113,6 +114,7 @@ const fields: TemplateField[] = [
     label: "Ton admission à Harvard",
     type: "textarea",
     section: PERSONNAGE,
+    minLines: 5,
     showIf: { field: "typePersonnage", equals: "etudiant" },
     help: "5 lignes minimum. Étudiants uniquement. Le sujet sur les études à Harvard peut t'inspirer.",
   },
@@ -121,6 +123,7 @@ const fields: TemplateField[] = [
     label: "Ta vie à Boston",
     type: "textarea",
     section: PERSONNAGE,
+    minLines: 5,
     showIf: { field: "typePersonnage", equals: "citoyen" },
     help: "5 lignes minimum. Citoyens uniquement.",
   },
