@@ -4,7 +4,7 @@ export type TemplateField = {
   id: string
   label: string
   type: FieldType
-  /** Titre de la section du formulaire dans laquelle le champ apparaît. */
+  /** Titre de la section du formulaire dans laquelle le champ apparaît ; vide : hors de toute section repliable. */
   section: string
   /** Aide sous le libellé ; `[texte](https://…)` crée un lien. */
   help?: string

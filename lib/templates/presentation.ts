@@ -1,5 +1,6 @@
 import type { CodeTemplate, TemplateField } from "./types"
 
+const NO_SECTION = ""
 const IDENTITE = "Carte d'identité"
 const DESCRIPTION = "Description"
 const HORS_JEU = "Hors jeu"
@@ -12,7 +13,7 @@ const fields: TemplateField[] = [
     id: "typePersonnage",
     label: "Type de personnage",
     type: "select",
-    section: IDENTITE,
+    section: NO_SECTION,
     required: true,
     defaultValue: "etudiant",
     options: [

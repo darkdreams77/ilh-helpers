@@ -176,26 +176,44 @@ export function CodeGenerator({
         onSubmit={(event) => event.preventDefault()}
       >
         <ProgressBar done={progress.done} total={progress.total} />
-        {progress.sections.map((section, index) => (
-          <FormSection
-            key={section.title}
-            index={index + 1}
-            section={section}
-            open={!closedSections.has(section.title)}
-            onToggle={() => toggleSection(section.title)}
-          >
-            {layoutFields(section.fields).map(({ field, wide }) => (
-              <FieldInput
-                key={field.id}
-                field={field}
-                wide={wide}
-                value={values[field.id] ?? ""}
-                options={getOptions(field, values)}
-                onChange={(value) => setValue(field.id, value)}
-              />
-            ))}
-          </FormSection>
-        ))}
+        {progress.sections.map((section, index) =>
+          section.title === "" ? (
+            <div
+              key="top"
+              className="border-border bg-card grid gap-x-4 gap-y-6 border p-4 sm:grid-cols-2"
+            >
+              {layoutFields(section.fields).map(({ field, wide }) => (
+                <FieldInput
+                  key={field.id}
+                  field={field}
+                  wide={wide}
+                  value={values[field.id] ?? ""}
+                  options={getOptions(field, values)}
+                  onChange={(value) => setValue(field.id, value)}
+                />
+              ))}
+            </div>
+          ) : (
+            <FormSection
+              key={section.title}
+              index={index}
+              section={section}
+              open={!closedSections.has(section.title)}
+              onToggle={() => toggleSection(section.title)}
+            >
+              {layoutFields(section.fields).map(({ field, wide }) => (
+                <FieldInput
+                  key={field.id}
+                  field={field}
+                  wide={wide}
+                  value={values[field.id] ?? ""}
+                  options={getOptions(field, values)}
+                  onChange={(value) => setValue(field.id, value)}
+                />
+              ))}
+            </FormSection>
+          ),
+        )}
       </form>
 
       {confetti}
