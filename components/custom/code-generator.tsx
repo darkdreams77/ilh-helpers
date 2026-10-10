@@ -92,11 +92,16 @@ export function CodeGenerator({
     () => renderTemplate(template, values),
     [template, values],
   )
+  const isDesktop = useSyncExternalStore(
+    subscribeDesktop,
+    () => window.matchMedia(DESKTOP_QUERY).matches,
+    () => true,
+  )
   // Le document ne dépend pas du code : seuls le thème et le mode le
   // rechargent. Le contenu est envoyé à l'iframe par message (PreviewPanel).
   const previewDocument = useMemo(
-    () => buildPreviewDocument("", theme, previewMode),
-    [theme, previewMode],
+    () => buildPreviewDocument("", theme, previewMode, !isDesktop),
+    [theme, previewMode, isDesktop],
   )
   const sections = useMemo(() => {
     const grouped = new Map<string, TemplateField[]>()
@@ -122,11 +127,6 @@ export function CodeGenerator({
     }
   }
 
-  const isDesktop = useSyncExternalStore(
-    subscribeDesktop,
-    () => window.matchMedia(DESKTOP_QUERY).matches,
-    () => true,
-  )
   const [sheetOpen, setSheetOpen] = useState(false)
 
   const panel = (iframeClassName: string) => (
