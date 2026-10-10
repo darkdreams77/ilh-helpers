@@ -89,7 +89,7 @@ export function buildPreviewDocument(
 <style>:root{${theme.light}}
 html.fa_darkmode{${theme.dark}}
 *{box-sizing:border-box}
-body{margin:0;padding:48px 16px 16px;background:var(--base,#fff);color:var(--textColor,#222);font-family:var(--font,'Work Sans'),sans-serif;font-size:var(--14px,.875rem)}
+body{margin:0;padding:48px 16px 16px;background:var(--base,#fff);color:var(--textColor,#222);font-family:var(--font,'Work Sans'),sans-serif;font-size:var(--14px,.875rem);line-height:1.4}
 pre{white-space:pre-wrap;overflow-wrap:anywhere}
 .tabs button{cursor:pointer}
 .content_tab:not(.active){display:none}</style>
