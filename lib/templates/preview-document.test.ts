@@ -33,4 +33,10 @@ describe("buildPreviewDocument", () => {
     expect(dark).toContain("html.fa_darkmode{--base: #170101;")
     expect(doc).not.toContain('class="fa_darkmode"')
   })
+
+  it("applique box-sizing: border-box à tous les éléments", () => {
+    expect(buildPreviewDocument("x", { light: "", dark: "" })).toContain(
+      "*{box-sizing:border-box}",
+    )
+  })
 })
