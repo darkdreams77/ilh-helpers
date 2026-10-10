@@ -101,10 +101,12 @@ export function CodeGenerator({
   const sections = useMemo(() => {
     const grouped = new Map<string, TemplateField[]>()
     for (const field of template.fields) {
+      const { showIf } = field
+      if (showIf && (values[showIf.field] ?? "") !== showIf.equals) continue
       grouped.set(field.section, [...(grouped.get(field.section) ?? []), field])
     }
     return [...grouped.entries()]
-  }, [template])
+  }, [template, values])
 
   const setValue = (id: string, value: string) =>
     setValues((current) => ({ ...current, [id]: value }))

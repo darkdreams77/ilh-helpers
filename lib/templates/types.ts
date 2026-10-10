@@ -11,6 +11,8 @@ export type TemplateField = {
   required?: boolean
   options?: { value: string; label: string }[]
   defaultValue?: string
+  /** N'affiche le champ que si le champ `field` vaut `equals`. */
+  showIf?: { field: string; equals: string }
 }
 
 export type CodeTemplate = {

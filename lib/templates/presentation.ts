@@ -113,6 +113,7 @@ const fields: TemplateField[] = [
     label: "Ton admission à Harvard",
     type: "textarea",
     section: PERSONNAGE,
+    showIf: { field: "typePersonnage", equals: "etudiant" },
     help: "5 lignes minimum. Étudiants uniquement. Le sujet sur les études à Harvard peut t'inspirer.",
   },
   {
@@ -120,6 +121,7 @@ const fields: TemplateField[] = [
     label: "Ta vie à Boston",
     type: "textarea",
     section: PERSONNAGE,
+    showIf: { field: "typePersonnage", equals: "citoyen" },
     help: "5 lignes minimum. Citoyens uniquement.",
   },
   {
