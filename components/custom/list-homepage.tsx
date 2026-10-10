@@ -33,7 +33,7 @@ export function ListHomepage() {
       <section className="max-w-8xl mx-auto px-4 py-20 2xl:px-0">
         <div className="mb-10 flex items-end justify-between gap-4">
           <h2 className="display text-4xl md:text-6xl">
-            Pensé pour <span className="text-crimson">les RPistes.</span>
+            Pensé pour <span className="text-crimson">les RPGistes.</span>
           </h2>
           <span className="label hidden md:block">Pourquoi</span>
         </div>
