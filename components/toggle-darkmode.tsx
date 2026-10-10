@@ -1,47 +1,26 @@
 "use client"
 
-import {
-  ComputerDesktopIcon,
-  MoonIcon,
-  SunIcon,
-} from "@heroicons/react/24/outline"
+import { MoonIcon, SunIcon } from "@heroicons/react/24/outline"
 import { useTheme } from "next-themes"
 
 import { Button } from "@/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 
-const options = [
-  { value: "light", label: "Clair", Icon: SunIcon },
-  { value: "dark", label: "Sombre", Icon: MoonIcon },
-  { value: "system", label: "Système", Icon: ComputerDesktopIcon },
-] as const
-
+/**
+ * Bascule clair/sombre. Sans choix préalable, le thème suit celui du système
+ * (`defaultTheme="system"`) ; un clic enregistre le thème opposé à celui affiché.
+ */
 export function ToggleDarkMode() {
-  const { setTheme, theme } = useTheme()
+  const { resolvedTheme, setTheme } = useTheme()
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label="Changer de thème">
-          <SunIcon className="size-5 dark:hidden" />
-          <MoonIcon className="hidden size-5 dark:block" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuRadioGroup value={theme} onValueChange={setTheme}>
-          {options.map(({ value, label, Icon }) => (
-            <DropdownMenuRadioItem key={value} value={value}>
-              <Icon className="mr-2 size-4" /> {label}
-            </DropdownMenuRadioItem>
-          ))}
-        </DropdownMenuRadioGroup>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <Button
+      variant="ghost"
+      size="icon"
+      aria-label="Basculer entre thème clair et sombre"
+      onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+    >
+      <SunIcon className="size-5 dark:hidden" />
+      <MoonIcon className="hidden size-5 dark:block" />
+    </Button>
   )
 }
