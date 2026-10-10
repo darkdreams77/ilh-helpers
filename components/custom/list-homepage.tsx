@@ -70,16 +70,16 @@ export function ListHomepage() {
         </div>
       </section>
 
-      <section className="bg-gold text-ink py-24">
+      <section className="bg-ink text-band-foreground py-24">
         <div className="max-w-8xl mx-auto flex flex-col items-start gap-8 px-4 2xl:px-0">
           <h2 className="display text-5xl text-balance md:text-8xl">
             Ton prochain code,{" "}
-            <span className="bg-ink text-gold px-3">c&apos;est ici.</span>
+            <span className="text-gold">c&apos;est ici.</span>
           </h2>
           <Button
             asChild
             size="lg"
-            className="bg-ink text-gold hover:bg-ink/85 h-12 px-8 text-base"
+            className="bg-gold text-ink hover:bg-gold/90 h-12 px-8 text-base"
           >
             <Link href="/codes">Remplir un code</Link>
           </Button>
