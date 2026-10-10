@@ -507,7 +507,9 @@ function FieldInput({
         )}
       </Label>
       {field.help && (
-        <p className="text-muted-foreground text-sm">{field.help}</p>
+        <p className="text-muted-foreground text-sm">
+          <HelpText text={field.help} />
+        </p>
       )}
       {field.type === "textarea" && (
         <Textarea
@@ -700,4 +702,25 @@ function FormSection({
       </div>
     </fieldset>
   )
+}
+
+/** Texte d'aide ; les liens `[texte](https://…)` s'ouvrent dans un nouvel onglet. */
+function HelpText({ text }: { text: string }) {
+  const parts = text.split(/(\[[^\]]+\]\(https?:\/\/[^)\s]+\))/)
+  return parts.map((part, index) => {
+    const link = /^\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)$/.exec(part)
+    return link ? (
+      <a
+        key={index}
+        href={link[2]}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-crimson underline underline-offset-2"
+      >
+        {link[1]}
+      </a>
+    ) : (
+      part
+    )
+  })
 }
