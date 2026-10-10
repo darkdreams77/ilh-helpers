@@ -4,8 +4,9 @@ const FONTS =
   "https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;600;700&family=Poppins:wght@400;500;600;700&display=swap"
 const BOOTSTRAP_ICONS =
   "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
-const PRESENTATION_CSS =
-  "https://cdn.jsdelivr.net/gh/darkdreams77/ilh-css-external/presentation.css"
+const FORUM_STYLESHEETS = ["presentation.css", "models.css"].map(
+  (file) => `https://cdn.jsdelivr.net/gh/darkdreams77/ilh-css-external/${file}`,
+)
 
 /**
  * Document HTML de l'aperçu, destiné à un `<iframe sandbox>` : le code saisi
@@ -25,6 +26,6 @@ body{margin:0;padding:48px 16px 16px;background:var(--base,#fff);color:var(--tex
 pre{white-space:pre-wrap;overflow-wrap:anywhere}
 .tabs button{cursor:default}
 .content_tab:not(.active){display:none}</style>
-<link rel="stylesheet" href="${PRESENTATION_CSS}">
+${FORUM_STYLESHEETS.map((href) => `<link rel="stylesheet" href="${href}">`).join("\n")}
 </head><body>${bbcodeToHtml(code).replace(/\n/g, "<br>")}</body></html>`
 }
