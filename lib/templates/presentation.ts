@@ -1,6 +1,7 @@
 import type { CodeTemplate, TemplateField } from "./types"
 
-const PERSONNAGE = "Le personnage"
+const IDENTITE = "Carte d'identité"
+const DESCRIPTION = "Description"
 const HORS_JEU = "Hors jeu"
 
 const capitalize = (text: string) =>
@@ -11,7 +12,7 @@ const fields: TemplateField[] = [
     id: "typePersonnage",
     label: "Type de personnage",
     type: "select",
-    section: PERSONNAGE,
+    section: IDENTITE,
     required: true,
     defaultValue: "etudiant",
     options: [
@@ -23,85 +24,85 @@ const fields: TemplateField[] = [
     id: "warnings",
     label: "Contenu sensible",
     type: "textarea",
-    section: PERSONNAGE,
+    section: IDENTITE,
     help: "Les warnings de cette fiche.",
   },
   {
     id: "avatar",
     label: "Image de l'avatar",
     type: "url",
-    section: PERSONNAGE,
+    section: IDENTITE,
     placeholder: "https://…",
   },
   {
     id: "pseudo",
     label: "Pseudo du personnage",
     type: "text",
-    section: PERSONNAGE,
+    section: IDENTITE,
     required: true,
   },
   {
     id: "faceclaim",
     label: "Faceclaim",
     type: "text",
-    section: PERSONNAGE,
+    section: IDENTITE,
     required: true,
   },
   {
     id: "naissance",
     label: "Date de naissance & âge",
     type: "text",
-    section: PERSONNAGE,
+    section: IDENTITE,
   },
   {
     id: "lieuNaissance",
     label: "Lieu de naissance & nationalité",
     type: "text",
-    section: PERSONNAGE,
+    section: IDENTITE,
   },
   {
     id: "statutSentimental",
     label: "Statut sentimental",
     type: "text",
-    section: PERSONNAGE,
+    section: IDENTITE,
   },
   {
     id: "orientation",
     label: "Orientation sexuelle",
     type: "text",
-    section: PERSONNAGE,
+    section: IDENTITE,
   },
   {
     id: "metier",
     label: "Études et/ou métier",
     type: "text",
-    section: PERSONNAGE,
+    section: IDENTITE,
   },
   {
     id: "statutSocial",
     label: "Statut social",
     type: "text",
-    section: PERSONNAGE,
+    section: IDENTITE,
   },
   {
     id: "origines",
     label: "Origines",
     type: "textarea",
-    section: PERSONNAGE,
+    section: IDENTITE,
     help: "Respecte et intègre toutes les origines de ton faceclaim (le site ethnicelebs peut t'aider). Si le personnage est membre d'une famille, prends en compte les origines de la fratrie.",
   },
   {
     id: "caractere",
     label: "Caractère",
     type: "textarea",
-    section: PERSONNAGE,
+    section: DESCRIPTION,
     help: "10 traits de caractère, ou 15 lignes minimum.",
   },
   {
     id: "groupe",
     label: "Groupe",
     type: "dropdown",
-    section: PERSONNAGE,
+    section: DESCRIPTION,
     required: true,
     placeholder: "Choisis un groupe",
     optionsBy: {
@@ -128,7 +129,7 @@ const fields: TemplateField[] = [
     id: "choixGroupe",
     label: "Pourquoi ce groupe",
     type: "textarea",
-    section: PERSONNAGE,
+    section: DESCRIPTION,
     minLines: 5,
     help: "5 lignes minimum.",
   },
@@ -136,7 +137,7 @@ const fields: TemplateField[] = [
     id: "admission",
     label: "Ton admission à Harvard",
     type: "textarea",
-    section: PERSONNAGE,
+    section: DESCRIPTION,
     minLines: 5,
     showIf: { field: "typePersonnage", equals: "etudiant" },
     help: "5 lignes minimum. Le [sujet sur les études à Harvard](https://www.i-love-harvard.com/t155177-l-universite-harvard-guide) peut t'inspirer.",
@@ -145,7 +146,7 @@ const fields: TemplateField[] = [
     id: "vieBoston",
     label: "Ta vie à Boston",
     type: "textarea",
-    section: PERSONNAGE,
+    section: DESCRIPTION,
     minLines: 5,
     showIf: { field: "typePersonnage", equals: "citoyen" },
     help: "5 lignes minimum.",
@@ -154,7 +155,7 @@ const fields: TemplateField[] = [
     id: "histoire",
     label: "Histoire",
     type: "textarea",
-    section: PERSONNAGE,
+    section: DESCRIPTION,
     help: "Ou 10 anecdotes détaillées minimum si tu ne veux pas écrire d'histoire.",
   },
   {
