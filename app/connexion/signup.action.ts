@@ -1,7 +1,6 @@
 "use server"
 
-import { Prisma } from "@prisma/client"
-
+import { Prisma } from "@/generated/prisma/client"
 import { hashPassword, validatePassword } from "@/lib/auth/credentials-provider"
 import prisma from "@/lib/prisma"
 import { action, ActionError } from "@/lib/server-actions/safe-actions"

@@ -6,8 +6,9 @@ import Link from "next/link"
 import "@/styles/globals.css"
 
 import { signOut } from "next-auth/react"
-import { User } from "@prisma/client"
 import { useRouter } from "next/navigation"
+
+import { User } from "@/generated/prisma/client"
 
 import { ToggleDarkMode } from "../toggle-darkmode"
 import {
