@@ -1,29 +1,16 @@
+"use client"
+
 import { useMutation } from "@tanstack/react-query"
 import { signIn } from "next-auth/react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-  useZodForm,
-} from "@/components/ui/form"
+import { Form, useZodForm } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { PasswordInput } from "@/components/ui/password-input"
-import { Separator } from "@/components/ui/separator"
 
+import { AuthField } from "./auth-field"
+import { GoogleButton } from "./google-button"
 import { signUpAction } from "./signup.action"
 import {
   LoginCredentialsFormScheme,
@@ -33,6 +20,7 @@ import {
 export function SignUp() {
   const form = useZodForm({
     schema: LoginCredentialsFormScheme,
+    defaultValues: { name: "", email: "", password: "", verifyPassword: "" },
   })
 
   const submitMutation = useMutation({
@@ -47,8 +35,7 @@ export function SignUp() {
       await signIn("credentials", {
         email: values.email,
         password: values.password,
-
-        callbackUrl: `${window.location.origin}/`,
+        callbackUrl: `${window.location.origin}/profile`,
       })
     },
   })
@@ -56,81 +43,39 @@ export function SignUp() {
   const onSubmit = async (values: LoginCredentialsFormType) => {
     if (values.password !== values.verifyPassword) {
       form.setError("verifyPassword", {
-        message: "Password does not match",
+        message: "Les mots de passe ne correspondent pas.",
       })
       return
     }
-
-    console.log("ok")
 
     return submitMutation.mutateAsync(values)
   }
 
   return (
-    <Form
-      form={form}
-      onSubmit={async (values) => {
-        return onSubmit(values)
-      }}
-    >
-      <Card>
-        <CardHeader>
-          <CardTitle>Inscription</CardTitle>
-          <CardDescription>
-            Tu souhaites t'inscrire ? Tu es au bon endroit !
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-4 space-y-2">
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem className="space-y-1">
-                <FormLabel>E-mail</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="password"
-            render={({ field }) => (
-              <FormItem className="space-y-1">
-                <FormLabel>Choisis un mot de passe</FormLabel>
-                <FormControl>
-                  <PasswordInput {...field} autoComplete="password" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="verifyPassword"
-            render={({ field }) => (
-              <FormItem className="space-y-1">
-                <FormLabel>Confirme ton mot de passe</FormLabel>
-                <FormControl>
-                  <PasswordInput {...field} autoComplete="none" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </CardContent>
-        <CardFooter>
-          <Button type="submit">Inscription</Button>
-        </CardFooter>
-        <Separator />
-        <CardContent>
-          <Button type="button" onClick={() => signIn("google")}>
-            Sign-in avec Google
-          </Button>
-        </CardContent>
-      </Card>
+    <Form form={form} onSubmit={onSubmit} className="space-y-6">
+      <AuthField name="name" label="Nom ou pseudo">
+        {(field) => <Input {...field} autoComplete="nickname" />}
+      </AuthField>
+      <AuthField name="email" label="E-mail">
+        {(field) => <Input {...field} type="email" autoComplete="email" />}
+      </AuthField>
+      <AuthField name="password" label="Mot de passe">
+        {(field) => <PasswordInput {...field} autoComplete="new-password" />}
+      </AuthField>
+      <p className="text-muted-foreground -mt-3 text-sm">
+        8 caractères minimum, avec au moins une lettre et un chiffre.
+      </p>
+      <AuthField name="verifyPassword" label="Confirme ton mot de passe">
+        {(field) => <PasswordInput {...field} autoComplete="new-password" />}
+      </AuthField>
+      <Button
+        type="submit"
+        size="lg"
+        className="label h-12 w-full rounded-none"
+      >
+        Créer mon compte
+      </Button>
+      <GoogleButton />
     </Form>
   )
 }

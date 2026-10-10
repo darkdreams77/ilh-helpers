@@ -1,98 +1,66 @@
 "use client"
 
 import { signIn } from "next-auth/react"
-import { redirect } from "next/navigation"
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 import { z } from "zod"
 
 import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-  useZodForm,
-} from "@/components/ui/form"
+import { Form, useZodForm } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { PasswordInput } from "@/components/ui/password-input"
-import { auth } from "@/lib/auth/helper"
 
-const LoginCredentialsFormScheme = z.object({
-  email: z.string().email(),
-  password: z.string().min(8).optional(),
+import { AuthField } from "./auth-field"
+import { GoogleButton } from "./google-button"
+
+const LoginFormScheme = z.object({
+  email: z.string().email("Renseigne une adresse e-mail valide."),
+  password: z.string().min(1, "Renseigne ton mot de passe."),
 })
 
-type LoginCredentialsFormType = z.infer<typeof LoginCredentialsFormScheme>
+type LoginFormType = z.infer<typeof LoginFormScheme>
 
 export function LogIn() {
+  const router = useRouter()
   const form = useZodForm({
-    schema: LoginCredentialsFormScheme,
+    schema: LoginFormScheme,
+    defaultValues: { email: "", password: "" },
   })
 
-  async function onSubmit(values: LoginCredentialsFormType) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    await signIn("credentials", {
+  async function onSubmit(values: LoginFormType) {
+    const result = await signIn("credentials", {
       email: values.email,
       password: values.password,
+      redirect: false,
     })
+
+    if (!result || result.error) {
+      toast.error("E-mail ou mot de passe incorrect.")
+      return
+    }
+
+    router.push("/profile")
+    router.refresh()
   }
 
   return (
-    <Form
-      form={form}
-      onSubmit={async (values) => {
-        return onSubmit(values)
-      }}
-    >
-      <Card>
-        <CardHeader>
-          <CardTitle>Connexion</CardTitle>
-          <CardDescription>
-            Tu as déjà un compte ? Renseigne ton e-mail et ton mot de passe.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-4 space-y-2">
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem className="space-y-1">
-                <FormLabel>E-mail</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="password"
-            render={({ field }) => (
-              <FormItem className="space-y-1">
-                <FormLabel>Mot de passe</FormLabel>
-                <FormControl>
-                  <PasswordInput {...field} autoComplete="password" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </CardContent>
-        <CardFooter>
-          <Button type="submit">Connexion</Button>
-        </CardFooter>
-      </Card>
+    <Form form={form} onSubmit={onSubmit} className="space-y-6">
+      <AuthField name="email" label="E-mail">
+        {(field) => <Input {...field} type="email" autoComplete="email" />}
+      </AuthField>
+      <AuthField name="password" label="Mot de passe">
+        {(field) => (
+          <PasswordInput {...field} autoComplete="current-password" />
+        )}
+      </AuthField>
+      <Button
+        type="submit"
+        size="lg"
+        className="label h-12 w-full rounded-none"
+      >
+        Me connecter
+      </Button>
+      <GoogleButton />
     </Form>
   )
 }
