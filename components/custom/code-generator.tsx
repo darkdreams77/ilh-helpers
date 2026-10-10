@@ -176,17 +176,19 @@ export function CodeGenerator({
         onSubmit={(event) => event.preventDefault()}
       >
         <ProgressBar done={progress.done} total={progress.total} />
-        {progress.sections.map((section) => (
+        {progress.sections.map((section, index) => (
           <FormSection
             key={section.title}
+            index={index + 1}
             section={section}
             open={!closedSections.has(section.title)}
             onToggle={() => toggleSection(section.title)}
           >
-            {section.fields.map((field) => (
+            {layoutFields(section.fields).map(({ field, wide }) => (
               <FieldInput
                 key={field.id}
                 field={field}
+                wide={wide}
                 value={values[field.id] ?? ""}
                 options={getOptions(field, values)}
                 onChange={(value) => setValue(field.id, value)}
@@ -332,7 +334,7 @@ function PreviewPanel({
         <Textarea
           readOnly
           value={code}
-          className={cn("font-mono text-xs", iframeClassName)}
+          className={cn("font-mono text-base md:text-xs", iframeClassName)}
           onFocus={(event) => event.currentTarget.select()}
         />
       </TabsContent>
@@ -439,21 +441,60 @@ function SaveDialog({
   )
 }
 
+/**
+ * Rythme de la grille : deux champs texte consécutifs se partagent une ligne,
+ * tout le reste (textes longs, choix, texte isolé) prend la largeur entière.
+ */
+function layoutFields(fields: TemplateField[]) {
+  const isShort = (field: TemplateField) =>
+    field.type === "text" || field.type === "dropdown"
+  const result: { field: TemplateField; wide: boolean }[] = []
+  for (let i = 0; i < fields.length; i++) {
+    const field = fields[i]
+    const next = fields[i + 1]
+    if (isShort(field) && next && isShort(next)) {
+      result.push({ field, wide: false }, { field: next, wide: false })
+      i++
+    } else {
+      result.push({ field, wide: true })
+    }
+  }
+  return result
+}
+
 type FieldInputProps = {
   field: TemplateField
+  wide: boolean
   value: string
   options: { value: string; label: string }[]
   onChange: (value: string) => void
 }
 
-function FieldInput({ field, value, options, onChange }: FieldInputProps) {
+function FieldInput({
+  field,
+  wide,
+  value,
+  options,
+  onChange,
+}: FieldInputProps) {
   const inputId = `field-${field.id}`
   const done = field.type !== "select" && isFieldDone(field, value)
   const lines = countLines(value)
 
   return (
-    <div className="animate-in fade-in slide-in-from-top-2 flex flex-col gap-2 duration-300">
-      <Label htmlFor={inputId} className="flex items-center gap-2">
+    <div
+      className={cn(
+        "animate-in fade-in slide-in-from-top-2 flex flex-col gap-2 duration-300",
+        wide && "sm:col-span-2",
+        // Les textes longs forment des blocs d'écriture, pour rythmer la page.
+        field.type === "textarea" &&
+          "border-l-gold bg-primary/5 border-l-4 p-4",
+      )}
+    >
+      <Label
+        htmlFor={inputId}
+        className="font-label flex items-center gap-2 text-base leading-snug font-semibold tracking-tight"
+      >
         <span>
           {field.label}
           {field.required && <span className="text-destructive"> *</span>}
@@ -590,6 +631,7 @@ function ProgressBar({ done, total }: { done: number; total: number }) {
 }
 
 type FormSectionProps = {
+  index: number
   section: SectionProgress
   open: boolean
   onToggle: () => void
@@ -597,12 +639,23 @@ type FormSectionProps = {
 }
 
 /** Section repliable avec compteur de champs remplis. */
-function FormSection({ section, open, onToggle, children }: FormSectionProps) {
+function FormSection({
+  index,
+  section,
+  open,
+  onToggle,
+  children,
+}: FormSectionProps) {
   const complete = section.total > 0 && section.done === section.total
   const contentId = `section-${section.title}`
 
   return (
-    <fieldset className="border-border bg-card border">
+    <fieldset
+      className={cn(
+        "border-border bg-card border border-l-4 transition-colors",
+        open && "border-l-gold",
+      )}
+    >
       <legend className="sr-only">{section.title}</legend>
       <button
         type="button"
@@ -611,6 +664,9 @@ function FormSection({ section, open, onToggle, children }: FormSectionProps) {
         onClick={onToggle}
         className="hover:bg-accent/30 flex w-full items-center gap-3 p-4 text-left transition-colors"
       >
+        <span className="label text-crimson">
+          {String(index).padStart(2, "0")}
+        </span>
         <span className="display flex-1 text-2xl">{section.title}</span>
         {complete ? (
           <CheckCircleIcon
@@ -637,7 +693,7 @@ function FormSection({ section, open, onToggle, children }: FormSectionProps) {
         )}
       >
         <div className="overflow-hidden" inert={!open}>
-          <div className="border-border flex flex-col gap-4 border-t p-4">
+          <div className="border-border grid gap-x-4 gap-y-6 border-t p-4 sm:grid-cols-2">
             {children}
           </div>
         </div>

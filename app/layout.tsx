@@ -1,5 +1,10 @@
 import type { Metadata } from "next"
-import { Archivo, Inter, JetBrains_Mono } from "next/font/google"
+import {
+  Archivo,
+  Bricolage_Grotesque,
+  Inter,
+  JetBrains_Mono,
+} from "next/font/google"
 
 import "@/styles/globals.css"
 
@@ -15,6 +20,10 @@ const archivo = Archivo({
   subsets: ["latin"],
   variable: "--font-archivo",
   weight: ["700", "800", "900"],
+})
+const bricolage = Bricolage_Grotesque({
+  subsets: ["latin"],
+  variable: "--font-bricolage",
 })
 const mono = JetBrains_Mono({
   subsets: ["latin"],
@@ -37,10 +46,16 @@ export default async function RootLayout({
   return (
     <html
       lang="fr"
-      className={cn("h-full", inter.variable, archivo.variable, mono.variable)}
+      className={cn(
+        "h-full",
+        inter.variable,
+        archivo.variable,
+        bricolage.variable,
+        mono.variable,
+      )}
       suppressHydrationWarning
     >
-      <body className="flex min-h-screen flex-col bg-background font-sans text-foreground antialiased">
+      <body className="bg-background text-foreground flex min-h-screen flex-col font-sans antialiased">
         <Providers>
           <Header user={user} />
           <main className="w-full flex-grow">{children}</main>
