@@ -15,7 +15,7 @@ const template: CodeTemplate = {
 }
 
 describe("draft", () => {
-  it("ne garde que les champs du gabarit de type texte", () => {
+  it("ne garde que les champs du modèle de type texte", () => {
     const raw = JSON.stringify({ a: "x", b: 3, inconnu: "y" })
     expect(parseDraft(raw, template)).toEqual({ a: "x" })
   })

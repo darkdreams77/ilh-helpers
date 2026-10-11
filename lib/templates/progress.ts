@@ -1,8 +1,8 @@
 import type { CodeTemplate, TemplateField, TemplateValues } from "./types"
 
-/** Nombre de lignes non vides d'un texte. */
-export function countLines(value: string): number {
-  return value.split("\n").filter((line) => line.trim() !== "").length
+/** Nombre de mots d'un texte. */
+export function countWords(value: string): number {
+  return value.split(/\s+/).filter(Boolean).length
 }
 
 /** Champ visible compte tenu des valeurs (`showIf`). */
@@ -11,10 +11,10 @@ export function isVisible(field: TemplateField, values: TemplateValues) {
   return !showIf || (values[showIf.field] ?? "") === showIf.equals
 }
 
-/** Un champ est complété s'il est renseigné et atteint son minimum de lignes. */
+/** Un champ est complété s'il est renseigné et atteint son minimum de mots. */
 export function isFieldDone(field: TemplateField, value: string): boolean {
   if (value.trim() === "") return false
-  return !field.minLines || countLines(value) >= field.minLines
+  return !field.minWords || countWords(value) >= field.minWords
 }
 
 export type SectionProgress = {

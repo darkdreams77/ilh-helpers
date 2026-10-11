@@ -67,7 +67,7 @@ import {
   type PreviewMode,
 } from "@/lib/templates/preview-document"
 import {
-  countLines,
+  countWords,
   getOptions,
   getProgress,
   isFieldDone,
@@ -460,7 +460,7 @@ function SaveDialog({
         <DialogHeader>
           <DialogTitle>Enregistrer ce code</DialogTitle>
           <DialogDescription>
-            Il remplace le code déjà enregistré pour ce gabarit et ce
+            Il remplace le code déjà enregistré pour ce modèle et ce
             personnage.
           </DialogDescription>
         </DialogHeader>
@@ -548,7 +548,7 @@ function FieldInput({
 }: FieldInputProps) {
   const inputId = `field-${field.id}`
   const done = field.type !== "select" && isFieldDone(field, value)
-  const lines = countLines(value)
+  const words = countWords(value)
 
   return (
     <div
@@ -589,7 +589,7 @@ function FieldInput({
           onChange={(event) => onChange(event.target.value)}
         />
       )}
-      {field.minLines && (
+      {field.minWords && (
         <p
           className={cn(
             "label self-end transition-colors",
@@ -597,7 +597,7 @@ function FieldInput({
           )}
         >
           {done ? "✓ " : ""}
-          {lines}/{field.minLines} lignes
+          {words}/{field.minWords} mots
         </p>
       )}
       {(field.type === "text" || field.type === "url") && (

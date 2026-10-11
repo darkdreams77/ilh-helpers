@@ -1,9 +1,13 @@
 import { notFound } from "next/navigation"
 
-import { PageContainer } from "@/components/custom/page-container"
 import { CodeGenerator } from "@/components/custom/code-generator"
+import { PageContainer } from "@/components/custom/page-container"
 import { auth } from "@/lib/auth/helper"
-import { findCharacter, findCode, listCharacters } from "@/lib/characters/queries"
+import {
+  findCharacter,
+  findCode,
+  listCharacters,
+} from "@/lib/characters/queries"
 import { sanitizeValues } from "@/lib/characters/schema"
 import { getForumTheme } from "@/lib/forum-theme"
 import { getTemplate, templates } from "@/lib/templates"
@@ -58,7 +62,7 @@ export default async function CodePage({ params, searchParams }: PageProps) {
 
   return (
     <PageContainer>
-      <p className="label text-crimson">Gabarit</p>
+      <p className="label text-crimson">Modèle</p>
       <h1 className="display mt-2 text-4xl md:text-6xl">{template.title}</h1>
       <p className="text-muted-foreground mt-3 mb-10 max-w-2xl">
         {template.description}

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 
 import { presentation } from "./presentation"
-import { countLines, getProgress, pruneInvalidOptions } from "./progress"
+import { countWords, getProgress, pruneInvalidOptions } from "./progress"
 import type { CodeTemplate } from "./types"
 
 const template: CodeTemplate = {
@@ -23,23 +23,23 @@ const template: CodeTemplate = {
       label: "Texte",
       type: "textarea",
       section: "B",
-      minLines: 2,
+      minWords: 2,
       showIf: { field: "type", equals: "a" },
     },
   ],
 }
 
 describe("progress", () => {
-  it("compte les lignes non vides", () => {
-    expect(countLines("a\n\n b \n")).toBe(2)
+  it("compte les mots", () => {
+    expect(countWords("a\n\n b  c \n")).toBe(3)
   })
 
-  it("ignore les selects et exige le minimum de lignes", () => {
+  it("ignore les selects et exige le minimum de mots", () => {
     const empty = getProgress(template, { type: "a" })
     expect(empty).toMatchObject({ done: 0, total: 2, complete: false })
     const partial = getProgress(template, { type: "a", nom: "x", texte: "une" })
     expect(partial.done).toBe(1)
-    const full = getProgress(template, { type: "a", nom: "x", texte: "a\nb" })
+    const full = getProgress(template, { type: "a", nom: "x", texte: "a b" })
     expect(full.complete).toBe(true)
   })
 

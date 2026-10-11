@@ -2,7 +2,7 @@ import type { CodeTemplate, TemplateValues } from "./types"
 
 const EVENT = "ilh-draft-change"
 
-/** Clé de stockage du brouillon d'un gabarit (et du personnage édité, le cas échéant). */
+/** Clé de stockage du brouillon d'un modèle (et du personnage édité, le cas échéant). */
 export function draftKey(templateId: string, characterId?: string) {
   return `ilh:draft:${templateId}:${characterId ?? "new"}`
 }
@@ -43,7 +43,7 @@ export function subscribeDraft(onChange: () => void) {
   }
 }
 
-/** Valeurs d'un brouillon brut, limitées aux champs du gabarit ; `null` si illisible. */
+/** Valeurs d'un brouillon brut, limitées aux champs du modèle ; `null` si illisible. */
 export function parseDraft(
   raw: string | null,
   template: CodeTemplate,
@@ -65,7 +65,7 @@ export function parseDraft(
   }
 }
 
-/** Deux jeux de valeurs sont équivalents s'ils coïncident sur les champs du gabarit. */
+/** Deux jeux de valeurs sont équivalents s'ils coïncident sur les champs du modèle. */
 export function sameValues(
   template: CodeTemplate,
   a: TemplateValues,

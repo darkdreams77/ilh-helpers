@@ -19,7 +19,7 @@ export const saveCodeAction = authAction
   .inputSchema(saveCodeSchema)
   .action(async ({ parsedInput, ctx }) => {
     const template = getTemplate(parsedInput.templateId)
-    if (!template) throw new ActionError("Gabarit inconnu.")
+    if (!template) throw new ActionError("Modèle inconnu.")
 
     const values = sanitizeValues(template, parsedInput.values)
 

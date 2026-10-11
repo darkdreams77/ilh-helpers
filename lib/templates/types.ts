@@ -17,8 +17,8 @@ export type TemplateField = {
     options: Record<string, { value: string; label: string }[]>
   }
   defaultValue?: string
-  /** Nombre de lignes minimum attendu (affiche un compteur). */
-  minLines?: number
+  /** Nombre de mots minimum attendu (affiche un compteur). */
+  minWords?: number
   /** N'affiche le champ que si le champ `field` vaut `equals`. */
   showIf?: { field: string; equals: string }
 }

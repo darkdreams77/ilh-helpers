@@ -58,7 +58,7 @@ describe("renderTemplate", () => {
 
 import { presentation } from "./presentation"
 
-describe("gabarit présentation", () => {
+describe("modèle présentation", () => {
   it("inclut le bloc admission pour un étudiant uniquement", () => {
     const etu = renderTemplate(presentation, {
       typePersonnage: "etudiant",
@@ -77,7 +77,7 @@ describe("gabarit présentation", () => {
     expect(cit).not.toContain("ADM")
   })
 
-  it("ne laisse aucune balise de gabarit dans le résultat", () => {
+  it("ne laisse aucune balise de modèle dans le résultat", () => {
     expect(renderTemplate(presentation, {})).not.toMatch(/\{\{|\}\}/)
   })
 

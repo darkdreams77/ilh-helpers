@@ -18,7 +18,7 @@ const features = [
 ]
 
 const steps = [
-  ["01", "Choisis", "Présentation, fiche de liens… le gabarit qu'il te faut."],
+  ["01", "Choisis", "Présentation, fiche de liens… le modèle qu'il te faut."],
   [
     "02",
     "Remplis",

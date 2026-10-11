@@ -15,7 +15,7 @@ export default async function CodesPage({
 
   return (
     <PageContainer>
-      <p className="label text-crimson">Gabarits</p>
+      <p className="label text-crimson">Modèles</p>
       <h1 className="display mt-2 text-5xl md:text-7xl">Codes</h1>
       <p className="mt-4 mb-10 max-w-xl text-muted-foreground">
         Choisis un code, remplis le formulaire, copie le résultat.

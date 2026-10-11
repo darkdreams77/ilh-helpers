@@ -64,7 +64,7 @@ export function CharacterList({ characters }: { characters: CharacterItem[] }) {
       {characters.length === 0 ? (
         <p className="text-muted-foreground mt-6">
           Aucun personnage pour l&apos;instant. Enregistre un code depuis un
-          gabarit, ou crée-en un ici.
+          modèle, ou crée-en un ici.
         </p>
       ) : (
         <ul className="mt-6 grid gap-4 md:grid-cols-2">
