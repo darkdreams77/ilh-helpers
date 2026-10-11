@@ -24,6 +24,11 @@ export function renderTemplate(
   values: TemplateValues,
 ): string {
   const data = withDefaults(template, values)
+  if (template.singleLine) {
+    for (const key of Object.keys(data)) {
+      data[key] = data[key].replace(/\r?\n/g, "<br>").replace(/\t/g, " ")
+    }
+  }
 
   let html = template.html
   let previous: string

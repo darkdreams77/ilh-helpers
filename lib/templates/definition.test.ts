@@ -114,4 +114,14 @@ describe("definition", () => {
       '<div class="ilh-abc"><b>x</b></div>',
     )
   })
+
+  it("supprime sauts de ligne et tabulations du code assemblé", () => {
+    const code = assembleCode(
+      "<div>\n\t<p>a\n b</p>\n\t{{#if x}}\n\t<i>c</i>\n\t{{/if}}\n</div>",
+      ".a {\n\tcolor: red;\n}",
+      "ilh-abc",
+    )
+    expect(code).not.toMatch(/[\r\n\t]/)
+    expect(code).toContain("<div><p>a b</p>{{#if x}}<i>c</i>{{/if}}</div>")
+  })
 })

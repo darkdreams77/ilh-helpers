@@ -25,7 +25,12 @@ export const wrapperClass = (id: string) => `ilh-${id}`
 /** Code final : CSS préfixé et minifié dans un `<style>`, puis le HTML dans son conteneur. */
 export function assembleCode(html: string, css: string, scopeClass: string) {
   const style = scopeCss(css, scopeClass)
-  return `${style ? `<style>${style}</style>` : ""}<div class="${scopeClass}">${html}</div>`
+  // Ni saut de ligne ni tabulation : supprimés entre deux balises, sinon remplacés par une espace.
+  const flat = html
+    .replace(/(?<=[>}])\s*[\r\n\t]+\s*(?=[<{])/g, "")
+    .replace(/\s*[\r\n\t]+\s*/g, " ")
+    .trim()
+  return `${style ? `<style>${style}</style>` : ""}<div class="${scopeClass}">${flat}</div>`
 }
 
 const FIELD_ID = /^[a-zA-Z][a-zA-Z0-9_-]{0,39}$/

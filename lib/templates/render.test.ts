@@ -87,4 +87,16 @@ describe("modèle présentation", () => {
     )
     expect(used.filter((id) => !ids.has(id))).toEqual([])
   })
+
+  it("en mode une ligne, les retours des valeurs deviennent <br>", () => {
+    const template = {
+      id: "t",
+      title: "t",
+      description: "",
+      fields: [{ id: "a", label: "A", type: "textarea" as const, section: "" }],
+      html: "<p>{{a}}</p>",
+      singleLine: true,
+    }
+    expect(renderTemplate(template, { a: "x\r\ny\tz" })).toBe("<p>x<br>y z</p>")
+  })
 })

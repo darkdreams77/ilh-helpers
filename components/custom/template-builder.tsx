@@ -52,8 +52,8 @@ const TYPES: { value: FieldType; label: string }[] = [
   { value: "text", label: "Texte court" },
   { value: "textarea", label: "Texte long" },
   { value: "url", label: "Lien (URL)" },
-  { value: "select", label: "Choix (boutons radio)" },
-  { value: "dropdown", label: "Choix (liste déroulante)" },
+  { value: "select", label: "Choix unique (boutons)" },
+  { value: "dropdown", label: "Choix unique (liste déroulante)" },
 ]
 
 const SELECT_CLASS =
@@ -232,6 +232,7 @@ export function TemplateBuilder({
       title,
       description,
       fields,
+      singleLine: true,
       html: assembleCode(html, css, scopeClass),
     }),
     [title, description, fields, html, css, scopeClass],
@@ -287,6 +288,24 @@ export function TemplateBuilder({
     if (await persist()) toast.success("Brouillon enregistré.")
   }
 
+  // La fenêtre est ouverte tout de suite (sinon le navigateur bloque la
+  // pop-up), puis dirigée vers le formulaire une fois le brouillon enregistré.
+  const onTest = async () => {
+    if (!id && issues.length > 0) {
+      toast.error("Complète le modèle avant de le tester.")
+      return
+    }
+    const tab = readOnly ? null : window.open("", "_blank")
+    const savedId = readOnly ? id : await persist()
+    if (!savedId) {
+      tab?.close()
+      return
+    }
+    const url = `/codes/u-${savedId}`
+    if (tab) tab.location.href = url
+    else window.open(url, "_blank")
+  }
+
   const onSubmit = async () => {
     const savedId = await persist()
     if (!savedId) return
@@ -339,7 +358,9 @@ export function TemplateBuilder({
               maxLength={80}
               onChange={(event) => setTitle(event.target.value)}
             />
-            <Label htmlFor="tpl-description">Description</Label>
+            <Label htmlFor="tpl-description">
+              Description (affichée dans la liste des codes)
+            </Label>
             <Textarea
               id="tpl-description"
               value={description}
@@ -353,7 +374,7 @@ export function TemplateBuilder({
               <TabsTrigger value="champs">Champs</TabsTrigger>
               <TabsTrigger value="html">HTML</TabsTrigger>
               <TabsTrigger value="css">CSS</TabsTrigger>
-              <TabsTrigger value="test">Données de test</TabsTrigger>
+              <TabsTrigger value="test">Valeurs d&apos;aperçu</TabsTrigger>
             </TabsList>
 
             <TabsContent value="champs" className="space-y-4">
@@ -383,8 +404,10 @@ export function TemplateBuilder({
 
             <TabsContent value="html" className="space-y-3">
               <p className="text-muted-foreground text-sm">
-                Clique un champ pour insérer son jeton à l&apos;endroit du
-                curseur. Les champs en rouge ne sont pas encore utilisés.
+                Chaque jeton <code>{"{{champ}}"}</code> sera remplacé par ce que
+                le membre saisit dans le champ du formulaire. Clique-en un pour
+                l&apos;insérer à l&apos;endroit du curseur ; en rouge : pas
+                encore utilisé dans le code.
               </p>
               <div className="flex flex-wrap gap-2">
                 {fields.map((field) => (
@@ -405,7 +428,10 @@ export function TemplateBuilder({
               </div>
               <div className="border-border flex flex-wrap items-end gap-2 border p-3">
                 <div className="min-w-40 flex-1">
-                  <Label className="text-xs">Afficher le bloc si…</Label>
+                  <Label className="text-xs">
+                    Condition dans le code : afficher le bloc seulement si le
+                    champ…
+                  </Label>
                   <select
                     className={SELECT_CLASS}
                     value={conditionField}
@@ -423,7 +449,9 @@ export function TemplateBuilder({
                   </select>
                 </div>
                 <div className="min-w-40 flex-1">
-                  <Label className="text-xs">…vaut (vide : renseigné)</Label>
+                  <Label className="text-xs">
+                    …a pour valeur (vide : est rempli)
+                  </Label>
                   {conditionTarget?.options?.length ? (
                     <select
                       className={SELECT_CLASS}
@@ -454,7 +482,7 @@ export function TemplateBuilder({
                   disabled={!conditionField}
                   onClick={insertCondition}
                 >
-                  Entourer la sélection
+                  Entourer le texte sélectionné
                 </Button>
               </div>
               <Textarea
@@ -487,7 +515,9 @@ export function TemplateBuilder({
 
             <TabsContent value="test" className="space-y-3">
               <p className="text-muted-foreground text-sm">
-                Valeurs utilisées dans l&apos;aperçu pour tester tes conditions.
+                Ces valeurs remplissent le formulaire fictif de l&apos;aperçu :
+                change-les pour vérifier que tes conditions affichent bien les
+                bons blocs.
               </p>
               {fields.map((field) => (
                 <div key={field.id} className="space-y-1">
@@ -547,10 +577,18 @@ export function TemplateBuilder({
             </Button>
             <Button
               type="button"
+              variant="outline"
+              disabled={busy || issues.length > 0}
+              onClick={onTest}
+            >
+              Tester le formulaire
+            </Button>
+            <Button
+              type="button"
               disabled={busy || issues.length > 0}
               onClick={onSubmit}
             >
-              Envoyer à la validation
+              Envoyer à un admin pour validation
             </Button>
           </div>
         )}
@@ -670,7 +708,9 @@ function FieldCard({
           </select>
         </div>
         <div className="space-y-1">
-          <Label className="text-xs">Section (vide : aucune)</Label>
+          <Label className="text-xs">
+            Section du formulaire (vide : hors section)
+          </Label>
           <Input
             value={field.section}
             maxLength={60}
@@ -678,7 +718,7 @@ function FieldCard({
           />
         </div>
         <div className="space-y-1">
-          <Label className="text-xs">Texte indicatif</Label>
+          <Label className="text-xs">Exemple grisé dans le champ</Label>
           <Input
             value={field.placeholder ?? ""}
             maxLength={120}
@@ -688,7 +728,7 @@ function FieldCard({
       </div>
 
       <div className="space-y-1">
-        <Label className="text-xs">Aide sous le libellé</Label>
+        <Label className="text-xs">Aide affichée sous le champ</Label>
         <Input
           value={field.help ?? ""}
           maxLength={400}
@@ -713,11 +753,11 @@ function FieldCard({
             checked={field.required ?? false}
             onChange={(event) => onChange({ required: event.target.checked })}
           />
-          Obligatoire
+          Obligatoire pour compléter la fiche
         </label>
         {field.type === "textarea" && (
           <label className="flex items-center gap-2 text-sm">
-            Mots minimum
+            Minimum de mots
             <Input
               type="number"
               min={1}
@@ -737,7 +777,9 @@ function FieldCard({
       </div>
 
       <div className="border-border space-y-2 border-t pt-3">
-        <Label className="text-xs">Afficher ce champ seulement si…</Label>
+        <Label className="text-xs">
+          Dans le formulaire : afficher ce champ seulement si le champ…
+        </Label>
         <div className="grid gap-2 sm:grid-cols-2">
           <select
             className={SELECT_CLASS}
@@ -783,7 +825,7 @@ function FieldCard({
             ) : (
               <Input
                 value={field.showIf.equals}
-                placeholder="vaut…"
+                placeholder="a pour valeur…"
                 onChange={(event) =>
                   onChange({
                     showIf: {

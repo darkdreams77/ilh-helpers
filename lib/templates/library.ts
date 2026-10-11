@@ -26,6 +26,7 @@ export function rowToTemplate(row: Row): CodeTemplate | null {
     fields,
     html: assembleCode(row.html, row.css, wrapperClass(row.id)),
     kind: row.kind,
+    singleLine: true,
     ...(row.author.name ? { author: row.author.name } : {}),
   }
 }

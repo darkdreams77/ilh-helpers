@@ -37,6 +37,8 @@ export type CodeTemplate = {
   html: string
   /** CSS propre au modèle, appliqué à l'aperçu (à intégrer à la feuille de style du forum). */
   css?: string
+  /** Code généré sans saut de ligne ni tabulation (ceux des valeurs saisies deviennent `<br>` ou espace). */
+  singleLine?: boolean
   /** Catégorie d'un modèle proposé par un membre. */
   kind?: "LINKS" | "RP" | "SIGNATURE"
   /** Auteur d'un modèle proposé par un membre. */
