@@ -23,6 +23,7 @@ import { UsedAvatar } from "./avatar"
 
 type HeaderProps = {
   user: User | null
+  isAdmin?: boolean
 }
 
 export function Header(props: HeaderProps) {
@@ -46,19 +47,37 @@ export function Header(props: HeaderProps) {
               />
             </Link>
             <Link href="/">
-              <span className="display text-lg tracking-tight">I Love Harvard</span>
+              <span className="display text-lg tracking-tight">
+                I Love Harvard
+              </span>
             </Link>
           </div>
           <div className="flex items-center gap-4">
             <Link
               href="/codes"
-              className="label underline-offset-8 transition-colors hover:text-crimson hover:underline"
+              className="label hover:text-crimson underline-offset-8 transition-colors hover:underline"
             >
               Codes
             </Link>
+            {props.user && (
+              <Link
+                href="/profile"
+                className="label hover:text-crimson underline-offset-8 transition-colors hover:underline"
+              >
+                Mes codes
+              </Link>
+            )}
+            {props.user && (
+              <Link
+                href="/createur"
+                className="label hover:text-crimson underline-offset-8 transition-colors hover:underline"
+              >
+                Créer
+              </Link>
+            )}
             <ToggleDarkMode />
             <DropdownMenu>
-              <DropdownMenuTrigger className="rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+              <DropdownMenuTrigger className="focus-visible:ring-ring rounded-full focus-visible:ring-2 focus-visible:outline-none">
                 <UsedAvatar
                   image={props?.user?.image || "/placeholder.jpg"}
                   name={props?.user?.name || "Invité"}
@@ -70,13 +89,22 @@ export function Header(props: HeaderProps) {
                     <DropdownMenuItem onClick={() => router.push("/profile")}>
                       Mon profil
                     </DropdownMenuItem>
+                    {props.isAdmin && (
+                      <DropdownMenuItem
+                        onClick={() => router.push("/admin/modeles")}
+                      >
+                        Valider les modèles
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={() => signOut()}>
                       Se déconnecter
                     </DropdownMenuItem>
                   </>
                 ) : (
-                  <DropdownMenuItem onClick={() => router.push("/connexion?type=login")}>
+                  <DropdownMenuItem
+                    onClick={() => router.push("/connexion?type=login")}
+                  >
                     Se connecter
                   </DropdownMenuItem>
                 )}

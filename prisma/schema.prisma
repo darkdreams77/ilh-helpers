@@ -42,17 +42,18 @@ model Session {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  accounts      Account[]
-  sessions      Session[]
-  passwordHash  String?
-  characters    Character[]
+  id              String           @id @default(cuid())
+  name            String?
+  email           String?          @unique
+  emailVerified   DateTime?
+  image           String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  accounts        Account[]
+  sessions        Session[]
+  passwordHash    String?
+  characters      Character[]
+  customTemplates CustomTemplate[]
 }
 
 model VerificationToken {
@@ -90,4 +91,37 @@ model Code {
 
   @@unique([characterId, templateId])
   @@map("codes")
+}
+
+enum TemplateKind {
+  LINKS
+  RP
+  SIGNATURE
+}
+
+enum TemplateStatus {
+  DRAFT
+  PENDING
+  PUBLISHED
+  REJECTED
+}
+
+model CustomTemplate {
+  id          String         @id @default(cuid())
+  authorId    String         @map("author_id")
+  title       String
+  description String         @default("")
+  fields      Json
+  html        String
+  css         String         @default("")
+  kind        TemplateKind   @default(LINKS)
+  status      TemplateStatus @default(DRAFT)
+  reviewNote  String?        @map("review_note")
+  createdAt   DateTime       @default(now()) @map("created_at")
+  updatedAt   DateTime       @updatedAt @map("updated_at")
+  author      User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([authorId])
+  @@index([status])
+  @@map("custom_templates")
 }

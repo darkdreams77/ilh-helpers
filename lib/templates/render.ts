@@ -37,5 +37,8 @@ export function renderTemplate(
     })
   } while (html !== previous)
 
-  return html.replace(/\{\{\s*([\w-]+)\s*\}\}/g, (_, key: string) => data[key] ?? "")
+  return html.replace(
+    /\{\{\s*([\w-]+)\s*\}\}/g,
+    (_, key: string) => data[key] ?? "",
+  )
 }

@@ -10,7 +10,8 @@ import {
 } from "@/lib/characters/queries"
 import { sanitizeValues } from "@/lib/characters/schema"
 import { getForumTheme } from "@/lib/forum-theme"
-import { getTemplate, templates } from "@/lib/templates"
+import { templates } from "@/lib/templates"
+import { findTemplate } from "@/lib/templates/library"
 
 type PageProps = {
   params: Promise<{ template: string }>
@@ -22,16 +23,19 @@ export function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: PageProps) {
-  const template = getTemplate((await params).template)
+  const template = await findTemplate((await params).template, await auth())
   return { title: template ? `${template.title} · ILH` : "Code · ILH" }
 }
 
 export default async function CodePage({ params, searchParams }: PageProps) {
-  const template = getTemplate((await params).template)
-  if (!template) notFound()
-
   const { code: codeId, personnage } = await searchParams
-  const [theme, user] = await Promise.all([getForumTheme(), auth()])
+  const [theme, user, { template: templateId }] = await Promise.all([
+    getForumTheme(),
+    auth(),
+    params,
+  ])
+  const template = await findTemplate(templateId, user)
+  if (!template) notFound()
 
   let characters: { id: string; name: string }[] | null = null
   let initialValues: Record<string, string> = {}
@@ -62,7 +66,9 @@ export default async function CodePage({ params, searchParams }: PageProps) {
 
   return (
     <PageContainer>
-      <p className="label text-crimson">Modèle</p>
+      <p className="label text-crimson">
+        Modèle{template.author ? ` de ${template.author}` : ""}
+      </p>
       <h1 className="display mt-2 text-4xl md:text-6xl">{template.title}</h1>
       <p className="text-muted-foreground mt-3 mb-10 max-w-2xl">
         {template.description}

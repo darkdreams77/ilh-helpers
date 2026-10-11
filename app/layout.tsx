@@ -10,6 +10,7 @@ import "@/styles/globals.css"
 
 import { Footer } from "@/components/custom/footer"
 import { Header } from "@/components/custom/header"
+import { isAdmin } from "@/lib/auth/admin"
 import { auth } from "@/lib/auth/helper"
 import { cn } from "@/lib/utils"
 
@@ -57,7 +58,7 @@ export default async function RootLayout({
     >
       <body className="bg-background text-foreground flex min-h-screen flex-col font-sans antialiased">
         <Providers>
-          <Header user={user} />
+          <Header user={user} isAdmin={isAdmin(user)} />
           <main className="w-full flex-grow">{children}</main>
           <Footer />
         </Providers>

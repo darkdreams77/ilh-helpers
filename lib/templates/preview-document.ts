@@ -25,6 +25,7 @@ export const MESSAGE_TYPE = "ilh-preview-update"
  */
 const PREVIEW_SCRIPT = `
 var root = document.getElementById('root');
+var custom = document.getElementById('custom-css');
 var activeTabs = {};
 function initTabs() {
   root.querySelectorAll('.id_card-v165').forEach(function (container, c) {
@@ -51,9 +52,15 @@ window.addEventListener('message', function (event) {
   var data = event.data;
   if (event.source !== window.parent || !data || data.type !== '${MESSAGE_TYPE}') return;
   if (typeof data.html !== 'string') return;
+  if (typeof data.css === 'string') custom.textContent = data.css;
   root.innerHTML = data.html;
   initTabs();
 });`
+
+/** Neutralise toute fermeture de balise `<style>` dans un CSS saisi par un membre. */
+export function sanitizeCss(css: string): string {
+  return css.replace(/<\/?style/gi, "")
+}
 
 /** HTML du corps de l'aperçu pour un code donné. */
 export function renderPreviewBody(code: string): string {
@@ -70,6 +77,7 @@ export function buildPreviewDocument(
   theme: ForumTheme,
   mode: PreviewMode = "light",
   mobile = false,
+  css = "",
 ): string {
   // Le CSS du forum n'a pas de media queries : il cible `.mobile …`, classe
   // que Forumactif pose sur les appareils mobiles.
@@ -94,5 +102,6 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere}
 .tabs button{cursor:pointer}
 .content_tab:not(.active){display:none}</style>
 ${FORUM_STYLESHEETS.map((href) => `<link rel="stylesheet" href="${href}">`).join("\n")}
+<style id="custom-css">${sanitizeCss(css)}</style>
 </head><body><div id="root">${renderPreviewBody(code)}</div><script nonce="${SCRIPT_NONCE}">${PREVIEW_SCRIPT}</script></body></html>`
 }

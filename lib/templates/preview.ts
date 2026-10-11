@@ -12,9 +12,6 @@ export function bbcodeToHtml(input: string): string {
     .replace(/\[i\]([\s\S]*?)\[\/i\]/gi, "<i>$1</i>")
     .replace(/\[u\]([\s\S]*?)\[\/u\]/gi, "<u>$1</u>")
     .replace(/\[img\]([^\]\s"<]+)\[\/img\]/gi, '<img src="$1">')
-    .replace(
-      /\[url=([^\]\s"<]+)\]([\s\S]*?)\[\/url\]/gi,
-      '<a href="$1">$2</a>',
-    )
+    .replace(/\[url=([^\]\s"<]+)\]([\s\S]*?)\[\/url\]/gi, '<a href="$1">$2</a>')
     .replace(/\[url\]([^\]\s"<]+)\[\/url\]/gi, '<a href="$1">$1</a>')
 }

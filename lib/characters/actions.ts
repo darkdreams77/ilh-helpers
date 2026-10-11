@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache"
 
 import prisma from "@/lib/prisma"
 import { ActionError, authAction } from "@/lib/server-actions/safe-actions"
-import { getTemplate } from "@/lib/templates"
+import { findTemplate } from "@/lib/templates/library"
 
 import {
   createCharacterSchema,
@@ -18,7 +18,7 @@ const clean = (value: string | undefined) => value?.trim() || null
 export const saveCodeAction = authAction
   .inputSchema(saveCodeSchema)
   .action(async ({ parsedInput, ctx }) => {
-    const template = getTemplate(parsedInput.templateId)
+    const template = await findTemplate(parsedInput.templateId, ctx.user)
     if (!template) throw new ActionError("Modèle inconnu.")
 
     const values = sanitizeValues(template, parsedInput.values)

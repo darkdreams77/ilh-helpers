@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 
+import { presentation } from "./presentation"
 import { renderTemplate } from "./render"
 import type { CodeTemplate } from "./types"
 
@@ -18,7 +19,7 @@ const make = (html: string): CodeTemplate => ({
 describe("renderTemplate", () => {
   it("remplace les variables sans échapper le HTML ni le BBCode", () => {
     const out = renderTemplate(make("<p>{{a}}</p>"), {
-      a: '<b>x</b> [url=https://e.com]y[/url]',
+      a: "<b>x</b> [url=https://e.com]y[/url]",
     })
     expect(out).toBe("<p><b>x</b> [url=https://e.com]y[/url]</p>")
   })
@@ -55,8 +56,6 @@ describe("renderTemplate", () => {
     expect(renderTemplate(t, { kind: "c", b: "x" })).toBe("")
   })
 })
-
-import { presentation } from "./presentation"
 
 describe("modèle présentation", () => {
   it("inclut le bloc admission pour un étudiant uniquement", () => {

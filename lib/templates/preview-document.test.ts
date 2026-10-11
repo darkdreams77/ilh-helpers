@@ -39,4 +39,16 @@ describe("buildPreviewDocument", () => {
       "*{box-sizing:border-box}",
     )
   })
+
+  it("injecte le CSS du modèle sans pouvoir fermer sa balise", () => {
+    const styled = buildPreviewDocument(
+      "",
+      theme,
+      "light",
+      false,
+      ".a{color:red}</style><script>x</script>",
+    )
+    expect(styled).toContain('<style id="custom-css">.a{color:red}')
+    expect(styled).not.toContain("</style><script>x")
+  })
 })

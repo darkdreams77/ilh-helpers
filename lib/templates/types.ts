@@ -35,6 +35,12 @@ export type CodeTemplate = {
    * - `{{#if champ}}…{{/if}}` garde le bloc si le champ est renseigné.
    */
   html: string
+  /** CSS propre au modèle, appliqué à l'aperçu (à intégrer à la feuille de style du forum). */
+  css?: string
+  /** Catégorie d'un modèle proposé par un membre. */
+  kind?: "LINKS" | "RP" | "SIGNATURE"
+  /** Auteur d'un modèle proposé par un membre. */
+  author?: string
 }
 
 export type TemplateValues = Record<string, string>

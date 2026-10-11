@@ -125,8 +125,9 @@ export function CodeGenerator({
   // Le document ne dépend pas du code : seuls le thème et le mode le
   // rechargent. Le contenu est envoyé à l'iframe par message (PreviewPanel).
   const previewDocument = useMemo(
-    () => buildPreviewDocument("", theme, previewMode, !isDesktop),
-    [theme, previewMode, isDesktop],
+    () =>
+      buildPreviewDocument("", theme, previewMode, !isDesktop, template.css),
+    [theme, previewMode, isDesktop, template.css],
   )
   const progress = useMemo(
     () => getProgress(template, values),
@@ -460,8 +461,7 @@ function SaveDialog({
         <DialogHeader>
           <DialogTitle>Enregistrer ce code</DialogTitle>
           <DialogDescription>
-            Il remplace le code déjà enregistré pour ce modèle et ce
-            personnage.
+            Il remplace le code déjà enregistré pour ce modèle et ce personnage.
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-4">
