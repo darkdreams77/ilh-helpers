@@ -2,6 +2,7 @@ import { ArrowRightIcon } from "@heroicons/react/24/outline"
 import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
+import { auth } from "@/lib/auth/helper"
 import { templates } from "@/lib/templates"
 
 const ticker = [
@@ -12,9 +13,11 @@ const ticker = [
   "Copie en un clic",
 ]
 
-export default function HeroSection() {
+export default async function HeroSection() {
+  const user = await auth()
+
   return (
-    <section className="border-b border-border">
+    <section className="border-border border-b">
       <div className="max-w-8xl mx-auto grid gap-10 px-4 pt-14 pb-16 md:pt-24 lg:grid-cols-[1.3fr_1fr] lg:items-end 2xl:px-0">
         <div className="space-y-8">
           <p className="label text-crimson">I Love Harvard · Aide aux codes</p>
@@ -27,7 +30,7 @@ export default function HeroSection() {
           </h1>
         </div>
         <div className="space-y-6 lg:pb-3">
-          <p className="max-w-md text-lg text-muted-foreground">
+          <p className="text-muted-foreground max-w-md text-lg">
             La plateforme d&apos;aide aux codes, simples comme compliqués, pour
             I Love Harvard. Par I Love Harvard. Tu remplis, tu copies, tu
             colles.
@@ -39,19 +42,21 @@ export default function HeroSection() {
                 <ArrowRightIcon className="ml-2 size-5 transition-transform group-hover:translate-x-1" />
               </Link>
             </Button>
-            <Button
-              asChild
-              size="lg"
-              variant="outline"
-              className="h-12 border-border px-6 text-base"
-            >
-              <Link href="/connexion?type=signup">Créer un compte</Link>
-            </Button>
+            {!user && (
+              <Button
+                asChild
+                size="lg"
+                variant="outline"
+                className="border-border h-12 px-6 text-base"
+              >
+                <Link href="/connexion?type=signup">Créer un compte</Link>
+              </Button>
+            )}
           </div>
         </div>
       </div>
       <div
-        className="overflow-hidden border-t border-border bg-band py-3 text-band-foreground"
+        className="border-border bg-band text-band-foreground overflow-hidden border-t py-3"
         aria-hidden
       >
         <div className="animate-marquee flex w-max gap-10 whitespace-nowrap">
