@@ -7,6 +7,7 @@ import {
   FieldPath,
   FieldValues,
   FormProvider,
+  Resolver,
   SubmitHandler,
   useForm,
   useFormContext,
@@ -14,7 +15,7 @@ import {
   UseFormReturn,
 } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { TypeOf, ZodSchema } from "zod"
+import { z } from "zod"
 
 import { Label } from "@/components/ui/label"
 import { cn } from "@/lib/utils"
@@ -201,20 +202,24 @@ const FormMessage = React.forwardRef<
 })
 FormMessage.displayName = "FormMessage"
 
-type UseZodFormProps<Z extends ZodSchema> = Exclude<
-  UseFormProps<TypeOf<Z>>,
+type UseZodFormProps<Z extends z.ZodType<FieldValues, FieldValues>> = Omit<
+  UseFormProps<z.input<Z>, unknown, z.output<Z>>,
   "resolver"
 > & {
   schema: Z
 }
 
-const useZodForm = <Z extends ZodSchema>({
+const useZodForm = <Z extends z.ZodType<FieldValues, FieldValues>>({
   schema,
   ...formProps
 }: UseZodFormProps<Z>) =>
-  useForm({
+  useForm<z.input<Z>, unknown, z.output<Z>>({
     ...formProps,
-    resolver: zodResolver(schema),
+    resolver: zodResolver(schema) as unknown as Resolver<
+      z.input<Z>,
+      unknown,
+      z.output<Z>
+    >,
   })
 
 export {

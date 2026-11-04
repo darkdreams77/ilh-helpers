@@ -6,8 +6,10 @@ import Link from "next/link"
 import "@/styles/globals.css"
 
 import { signOut } from "next-auth/react"
-import { User } from "@prisma/client"
 import { useRouter } from "next/navigation"
+
+import { User } from "@/generated/prisma/client"
+import { MEMBER_TEMPLATES_ENABLED } from "@/lib/features"
 
 import { ToggleDarkMode } from "../toggle-darkmode"
 import {
@@ -22,54 +24,90 @@ import { UsedAvatar } from "./avatar"
 
 type HeaderProps = {
   user: User | null
+  isAdmin?: boolean
 }
 
 export function Header(props: HeaderProps) {
   const router = useRouter()
   const variants =
-    "supports-backdrop-blur:bg-white/95 sticky top-0 w-full flex-none bg-white/50 backdrop-blur duration-500 dark:border-slate-50/[0.06] dark:bg-slate-900/50 z-50 border-b border-slate-900/10"
+    "sticky top-0 z-50 w-full flex-none border-b border-border bg-background/95 backdrop-blur-sm"
 
   return (
     <header className={variants}>
       <div className="max-w-8xl mx-auto">
-        <div className="flex items-center justify-between p-4 2xl:px-0">
-          <div className="flex items-center justify-start gap-4">
+        <div className="flex h-16 items-center justify-between px-4 2xl:px-0">
+          <div className="flex items-center justify-start gap-3">
             <Link href="/">
               <Image
                 src="/harvard-logo.png"
                 alt="I Love Harvard - Aide aux codes"
                 style={{ objectFit: "cover" }}
-                className="size-8 lg:size-10"
+                className="size-8"
                 width={40}
                 height={40}
               />
             </Link>
             <Link href="/">
-              <span className="text-lg font-bold">I LOVE HARVARD</span>
+              <span className="display text-lg tracking-tight">
+                I Love Harvard
+              </span>
             </Link>
           </div>
-          <div className="flex gap-4">
+          <div className="flex items-center gap-4">
+            <Link
+              href="/codes"
+              className="label hover:text-crimson underline-offset-8 transition-colors hover:underline"
+            >
+              Codes
+            </Link>
+            {props.user && (
+              <Link
+                href="/profile"
+                className="label hover:text-crimson underline-offset-8 transition-colors hover:underline"
+              >
+                Mes codes
+              </Link>
+            )}
+            {MEMBER_TEMPLATES_ENABLED && props.user && (
+              <Link
+                href="/createur"
+                className="label hover:text-crimson underline-offset-8 transition-colors hover:underline"
+              >
+                Créer
+              </Link>
+            )}
+            <ToggleDarkMode />
             <DropdownMenu>
-              <DropdownMenuTrigger>
+              <DropdownMenuTrigger className="focus-visible:ring-ring rounded-full focus-visible:ring-2 focus-visible:outline-none">
                 <UsedAvatar
                   image={props?.user?.image || "/placeholder.jpg"}
                   name={props?.user?.name || "Invité"}
                 />
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <ToggleDarkMode />
-
-                {props?.user && (
+                {props?.user ? (
                   <>
-                    <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={() => router.push("/profile")}>
                       Mon profil
                     </DropdownMenuItem>
+                    {MEMBER_TEMPLATES_ENABLED && props.isAdmin && (
+                      <DropdownMenuItem
+                        onClick={() => router.push("/admin/modeles")}
+                      >
+                        Valider les modèles
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={() => signOut()}>
                       Se déconnecter
                     </DropdownMenuItem>
                   </>
+                ) : (
+                  <DropdownMenuItem
+                    onClick={() => router.push("/connexion?type=login")}
+                  >
+                    Se connecter
+                  </DropdownMenuItem>
                 )}
               </DropdownMenuContent>
             </DropdownMenu>

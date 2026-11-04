@@ -1,12 +1,14 @@
 import { PrismaAdapter } from "@auth/prisma-adapter"
-import type { User } from "@prisma/client"
 import NextAuth, { type Session } from "next-auth"
 import GoogleProvider from "next-auth/providers/google"
+
+import type { User } from "@/generated/prisma/client"
 
 import { env } from "../env"
 import prisma from "../prisma"
 import {
   credentialsOverrideJwt,
+  credentialsSignInCallback,
   getCredentialsProvider,
 } from "./credentials-provider"
 
@@ -16,7 +18,6 @@ export const { handlers, auth: baseAuth } = NextAuth((req) => ({
     GoogleProvider({
       clientId: env.GOOGLE_CLIENT_ID,
       clientSecret: env.GOOGLE_CLIENT_SECRET,
-      allowDangerousEmailAccountLinking: true,
     }),
     // 🔑 Add this line and the import to add credentials provider
     getCredentialsProvider(),
@@ -29,18 +30,32 @@ export const { handlers, auth: baseAuth } = NextAuth((req) => ({
     session(params) {
       if (params.newSession) return params.session
 
-      const typedParams = params as unknown as {
+      const { session, user } = params as unknown as {
         session: Session
         user?: User
       }
 
-      if (!typedParams.user) return typedParams.session
+      if (!user) return session
 
-      typedParams.user.passwordHash = null
-
-      return typedParams.session
+      // Only expose what the app needs: never the DB session token nor the
+      // password hash (this object is served by /api/auth/session).
+      return {
+        expires: session.expires,
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          image: user.image,
+          createdAt: user.createdAt,
+          updatedAt: user.updatedAt,
+        },
+      } as unknown as Session
     },
   },
-  // 🔑 Add this line and the import to add credentials provider
+  // Credentials provider can't create database sessions on its own:
+  // the signIn event creates the session row and cookie.
+  events: {
+    signIn: credentialsSignInCallback(req),
+  },
   jwt: credentialsOverrideJwt,
 }))

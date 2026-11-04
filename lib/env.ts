@@ -7,6 +7,8 @@ export const env = createEnv({
     GOOGLE_CLIENT_ID: z.string().min(1),
     GOOGLE_CLIENT_SECRET: z.string().min(1),
     NEXTAUTH_SECRET: z.string().min(1),
+    // E-mails des administrateurs (modération des modèles), séparés par des virgules.
+    ADMIN_EMAILS: z.string().optional(),
     NODE_ENV: z.enum(["development", "production", "test"]),
   },
   client: {

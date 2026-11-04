@@ -1,38 +1,71 @@
-/**
- * v0 by Vercel.
- * @see https://v0.dev/t/IbXIvJLKeLs
- * Documentation: https://v0.dev/docs#integrating-generated-code-into-your-nextjs-app
- */
+import { ArrowRightIcon } from "@heroicons/react/24/outline"
 import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
+import { auth } from "@/lib/auth/helper"
+import { templates } from "@/lib/templates"
 
-export default function HeroSection() {
+const ticker = [
+  ...templates.map((template) => template.title),
+  "Fiche de liens (bientôt)",
+  "HTML & BBCode",
+  "Aperçu en direct",
+  "Copie en un clic",
+]
+
+export default async function HeroSection() {
+  const user = await auth()
+
   return (
-    <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48">
-      <div className="container px-4 md:px-6">
-        <div className="flex flex-col items-center space-y-4 text-center">
-          <div className="space-y-2">
-            <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none">
-              The Web. Now. Everywhere.
-            </h1>
-            <p className="mx-auto max-w-[700px] text-gray-500 dark:text-gray-400 md:text-xl">
-              La plateforme d'aide aux codes{" "}
-              <em>(simples, comme compliqués)</em>, pour I Love Harvard. Par I
-              Love Harvard.
-            </p>
-          </div>
-          <div className="w-full max-w-sm space-y-2">
-            <Button type="button" asChild className="text-md font-bold">
-              <Link href="/connexion?type=signup">Inscris-toi</Link>
-            </Button>{" "}
-            <span className="text-xs">
-              ou{" "}
-              <Link href="/connexion?type=login" className="underline">
-                connecte-toi
+    <section className="border-border border-b">
+      <div className="max-w-8xl mx-auto grid gap-10 px-4 pt-14 pb-16 md:pt-24 lg:grid-cols-[1.3fr_1fr] lg:items-end 2xl:px-0">
+        <div className="space-y-8">
+          <p className="label text-crimson">I Love Harvard · Aide aux codes</p>
+          <h1 className="display text-[clamp(3rem,9vw,7.5rem)] text-balance">
+            Tes codes,
+            <br />
+            <span className="hl">remplis</span> en
+            <br />
+            deux minutes.
+          </h1>
+        </div>
+        <div className="space-y-6 lg:pb-3">
+          <p className="text-muted-foreground max-w-md text-lg">
+            La plateforme d&apos;aide aux codes, simples comme compliqués, pour
+            I Love Harvard. Par I Love Harvard. Tu remplis, tu copies, tu
+            colles.
+          </p>
+          <div className="flex flex-wrap items-center gap-3">
+            <Button asChild size="lg" className="group h-12 px-6 text-base">
+              <Link href="/codes">
+                Remplir un code
+                <ArrowRightIcon className="ml-2 size-5 transition-transform group-hover:translate-x-1" />
               </Link>
-            </span>
+            </Button>
+            {!user && (
+              <Button
+                asChild
+                size="lg"
+                variant="outline"
+                className="border-border h-12 px-6 text-base"
+              >
+                <Link href="/connexion?type=signup">Créer un compte</Link>
+              </Button>
+            )}
           </div>
+        </div>
+      </div>
+      <div
+        className="border-border bg-band text-band-foreground overflow-hidden border-t py-3"
+        aria-hidden
+      >
+        <div className="animate-marquee flex w-max gap-10 whitespace-nowrap">
+          {[...ticker, ...ticker].map((item, index) => (
+            <span key={index} className="label flex items-center gap-10">
+              {item}
+              <span className="text-gold">✦</span>
+            </span>
+          ))}
         </div>
       </div>
     </section>

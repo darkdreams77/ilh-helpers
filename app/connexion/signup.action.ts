@@ -1,18 +1,15 @@
 "use server"
 
-import {
-  hashStringWithSalt,
-  validatePassword,
-} from "@/lib/auth/credentials-provider"
-import { env } from "@/lib/env"
+import { Prisma } from "@/generated/prisma/client"
+import { hashPassword, validatePassword } from "@/lib/auth/credentials-provider"
 import prisma from "@/lib/prisma"
 import { action, ActionError } from "@/lib/server-actions/safe-actions"
 
 import { LoginCredentialsFormScheme } from "./signup.schema"
 
-export const signUpAction = action(
-  LoginCredentialsFormScheme,
-  async ({ email, password, name }) => {
+export const signUpAction = action
+  .inputSchema(LoginCredentialsFormScheme)
+  .action(async ({ parsedInput: { email, password, name } }) => {
     if (!validatePassword(password)) {
       throw new ActionError(
         "Invalid new password. Must be at least 8 characters, and contain at least one letter and one number",
@@ -20,21 +17,23 @@ export const signUpAction = action(
     }
 
     try {
-      const userData = {
-        email,
-        passwordHash: hashStringWithSalt(password, env.NEXTAUTH_SECRET),
-        name,
-      }
-
       const user = await prisma.user.create({
         data: {
-          ...userData,
+          email: email.trim().toLowerCase(),
+          passwordHash: await hashPassword(password),
+          name,
         },
+        select: { id: true },
       })
 
       return user
-    } catch {
-      throw new ActionError("Email already exists")
+    } catch (e) {
+      if (
+        e instanceof Prisma.PrismaClientKnownRequestError &&
+        e.code === "P2002"
+      ) {
+        throw new ActionError("Email already exists")
+      }
+      throw e
     }
-  },
-)
+  })
