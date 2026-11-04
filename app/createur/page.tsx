@@ -1,10 +1,11 @@
 import Link from "next/link"
-import { redirect } from "next/navigation"
+import { notFound, redirect } from "next/navigation"
 
 import { PageContainer } from "@/components/custom/page-container"
 import { DeleteTemplateButton } from "@/components/custom/template-actions"
 import { Button } from "@/components/ui/button"
 import { auth } from "@/lib/auth/helper"
+import { MEMBER_TEMPLATES_ENABLED } from "@/lib/features"
 import prisma from "@/lib/prisma"
 import { kindLabel } from "@/lib/templates/definition"
 
@@ -18,6 +19,7 @@ const STATUS_LABEL = {
 } as const
 
 export default async function CreatorPage() {
+  if (!MEMBER_TEMPLATES_ENABLED) notFound()
   const user = await auth()
   if (!user) redirect("/connexion?type=login")
 

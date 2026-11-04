@@ -5,12 +5,14 @@ import { PageContainer } from "@/components/custom/page-container"
 import { ReviewControls } from "@/components/custom/template-actions"
 import { isAdmin } from "@/lib/auth/admin"
 import { auth } from "@/lib/auth/helper"
+import { MEMBER_TEMPLATES_ENABLED } from "@/lib/features"
 import prisma from "@/lib/prisma"
 import { kindLabel } from "@/lib/templates/definition"
 
 export const metadata = { title: "Valider les modèles · ILH" }
 
 export default async function ReviewPage() {
+  if (!MEMBER_TEMPLATES_ENABLED) notFound()
   const user = await auth()
   if (!isAdmin(user)) notFound()
 

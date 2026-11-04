@@ -1,5 +1,6 @@
 import type { CustomTemplate } from "@/generated/prisma/client"
 import { isAdmin } from "@/lib/auth/admin"
+import { MEMBER_TEMPLATES_ENABLED } from "@/lib/features"
 import prisma from "@/lib/prisma"
 
 import {
@@ -33,6 +34,7 @@ export function rowToTemplate(row: Row): CodeTemplate | null {
 
 /** Modèles intégrés, suivis des modèles de membres publiés. */
 export async function listLibrary(): Promise<CodeTemplate[]> {
+  if (!MEMBER_TEMPLATES_ENABLED) return templates
   const rows = await prisma.customTemplate.findMany({
     where: { status: "PUBLISHED" },
     orderBy: { updatedAt: "desc" },
@@ -50,7 +52,8 @@ export async function findTemplate(
   viewer: Viewer,
 ): Promise<CodeTemplate | undefined> {
   const builtIn = getTemplate(id)
-  if (builtIn || !id.startsWith(CUSTOM_PREFIX)) return builtIn
+  if (builtIn || !MEMBER_TEMPLATES_ENABLED || !id.startsWith(CUSTOM_PREFIX))
+    return builtIn
 
   const row = await prisma.customTemplate.findUnique({
     where: { id: id.slice(CUSTOM_PREFIX.length) },

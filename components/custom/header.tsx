@@ -9,6 +9,7 @@ import { signOut } from "next-auth/react"
 import { useRouter } from "next/navigation"
 
 import { User } from "@/generated/prisma/client"
+import { MEMBER_TEMPLATES_ENABLED } from "@/lib/features"
 
 import { ToggleDarkMode } from "../toggle-darkmode"
 import {
@@ -67,7 +68,7 @@ export function Header(props: HeaderProps) {
                 Mes codes
               </Link>
             )}
-            {props.user && (
+            {MEMBER_TEMPLATES_ENABLED && props.user && (
               <Link
                 href="/createur"
                 className="label hover:text-crimson underline-offset-8 transition-colors hover:underline"
@@ -89,7 +90,7 @@ export function Header(props: HeaderProps) {
                     <DropdownMenuItem onClick={() => router.push("/profile")}>
                       Mon profil
                     </DropdownMenuItem>
-                    {props.isAdmin && (
+                    {MEMBER_TEMPLATES_ENABLED && props.isAdmin && (
                       <DropdownMenuItem
                         onClick={() => router.push("/admin/modeles")}
                       >

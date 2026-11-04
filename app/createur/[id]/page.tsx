@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation"
 import { PageContainer } from "@/components/custom/page-container"
 import { TemplateBuilder } from "@/components/custom/template-builder"
 import { auth } from "@/lib/auth/helper"
+import { MEMBER_TEMPLATES_ENABLED } from "@/lib/features"
 import { getForumTheme } from "@/lib/forum-theme"
 import prisma from "@/lib/prisma"
 import { parseFields, type TemplateDraft } from "@/lib/templates/definition"
@@ -23,6 +24,7 @@ export default async function BuilderPage({
 }: {
   params: Promise<{ id: string }>
 }) {
+  if (!MEMBER_TEMPLATES_ENABLED) notFound()
   const [{ id }, user] = await Promise.all([params, auth()])
   if (!user) redirect("/connexion?type=login")
 

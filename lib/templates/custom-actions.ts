@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache"
 import { z } from "zod"
 
 import { isAdmin } from "@/lib/auth/admin"
+import { MEMBER_TEMPLATES_ENABLED } from "@/lib/features"
 import prisma from "@/lib/prisma"
 import { ActionError, authAction } from "@/lib/server-actions/safe-actions"
 
@@ -20,6 +21,14 @@ const reviewSchema = z.object({
   id: z.string().min(1).max(100),
   decision: z.enum(["publish", "reject"]),
   note: z.string().trim().max(500).optional(),
+})
+
+/** Refuse toute action tant que les modèles de membres sont désactivés. */
+const templateAction = authAction.use(async ({ next }) => {
+  if (!MEMBER_TEMPLATES_ENABLED) {
+    throw new ActionError("Cette fonctionnalité n'est pas encore disponible.")
+  }
+  return next()
 })
 
 function refresh() {
@@ -44,7 +53,7 @@ async function ownEditable(id: string, userId: string) {
   return row
 }
 
-export const saveTemplateAction = authAction
+export const saveTemplateAction = templateAction
   .inputSchema(saveSchema)
   .action(async ({ parsedInput: { id, draft }, ctx }) => {
     const data = {
@@ -81,7 +90,7 @@ export const saveTemplateAction = authAction
     return { id }
   })
 
-export const submitTemplateAction = authAction
+export const submitTemplateAction = templateAction
   .inputSchema(idSchema)
   .action(async ({ parsedInput, ctx }) => {
     const row = await ownEditable(parsedInput.id, ctx.user.id)
@@ -105,7 +114,7 @@ export const submitTemplateAction = authAction
     refresh()
   })
 
-export const deleteTemplateAction = authAction
+export const deleteTemplateAction = templateAction
   .inputSchema(idSchema)
   .action(async ({ parsedInput, ctx }) => {
     const row = await prisma.customTemplate.findFirst({
@@ -121,7 +130,7 @@ export const deleteTemplateAction = authAction
     refresh()
   })
 
-export const reviewTemplateAction = authAction
+export const reviewTemplateAction = templateAction
   .inputSchema(reviewSchema)
   .action(async ({ parsedInput, ctx }) => {
     if (!isAdmin(ctx.user)) throw new ActionError("Accès refusé.")
