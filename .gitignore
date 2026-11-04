@@ -42,3 +42,5 @@ next-env.d.ts
 
 # vitest
 /.vitest
+.env*
+!.env.local.example
